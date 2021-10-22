@@ -1,29 +1,61 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timefly/blocs/habit/habit_bloc.dart';
 import 'package:timefly/blocs/habit/habit_event.dart';
 import 'package:timefly/db/database_provider.dart';
 
 class User {
-  final String id;
-  final String username;
-  final String phone;
-
-  User(this.id, this.username, this.phone);
+  String id;
+  String key;
+  String name;
+  String phone;
+  String birth;
+  String password;
+  String users;
+  String img;
 
   static User fromJson(Map<String, dynamic> json) {
-    return User(json['id']?.toString(), json["username"]?.toString(),
-        json["phone"]?.toString());
+    return User()
+      ..id = json['id']?.toString()
+      ..key = json['key']?.toString()
+      ..name = json['name']?.toString()
+      ..phone = json['phone']?.toString()
+      ..birth = json['birth']?.toString()
+      ..password = json['password']?.toString()
+      ..users = json['users']?.toString()
+      ..img = json['img']?.toString();
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = Map<String, dynamic>();
     data['id'] = id;
-    data["username"] = username;
-    data["phone"] = phone;
+    data['key'] = key;
+    data['name'] = name;
+    data['phone'] = phone;
+    data['birth'] = birth;
+    data['password'] = password;
+    data["users"] = users;
+    data["img"] = img;
     return data;
   }
 
-  User copyWith({String id, String username, String phone}) {
-    return User(id ?? this.id, username ?? this.username, phone ?? this.phone);
+  User copyWith(
+      {String id,
+      String key,
+      String name,
+      String phone,
+      String birth,
+      String password,
+      String users,
+      String img}) {
+    return User()
+      ..id = id
+      ..key = key
+      ..name = name
+      ..phone = phone
+      ..birth = birth
+      ..password = password
+      ..users = users
+      ..img = img;
   }
 }
 
@@ -40,8 +72,10 @@ class SessionUtils {
 
   User currentUser;
   HabitsBloc habitsBloc;
+  SharedPreferences prefs;
 
   init() async {
+    prefs = await SharedPreferences.getInstance();
     currentUser = await DatabaseProvider.db.getCurrentUser();
     print('init user -- ${currentUser?.toJson()}');
   }
@@ -66,7 +100,7 @@ class SessionUtils {
   }
 
   void updateName(String name) async {
-    currentUser = currentUser.copyWith(username: name);
+    currentUser = currentUser.copyWith(name: name);
     await DatabaseProvider.db.updateUser(currentUser);
   }
 

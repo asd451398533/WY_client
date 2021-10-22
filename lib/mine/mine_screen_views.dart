@@ -5,6 +5,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:timefly/app_theme.dart';
 import 'package:timefly/blocs/habit/habit_bloc.dart';
 import 'package:timefly/blocs/habit/habit_state.dart';
+import 'package:timefly/bookkeep/bookkeeping_page.dart';
+import 'package:timefly/commonModel/picker/loadingPicker.dart';
 import 'package:timefly/login/login_page.dart';
 import 'package:timefly/mine/settings_screen.dart';
 import 'package:timefly/models/habit.dart';
@@ -38,23 +40,28 @@ class UserInfoView extends StatelessWidget {
           ),
           GestureDetector(
             onTap: () async {
-              if (user == null) {
-                await Navigator.of(context)
-                    .push(CupertinoPageRoute(builder: (context) {
-                  return LoginPage();
-                }));
-                return;
-              }
-              if (user.username == null || user.username.isEmpty) {
-                await Navigator.of(context)
-                    .push(CupertinoPageRoute(builder: (context) {
-                  return SettingsScreen();
-                }));
-                callback();
-              }
+              // if (user == null) {
+              //   await Navigator.of(context)
+              //       .push(CupertinoPageRoute(builder: (context) {
+              //     return LoginPage();
+              //   }));
+              //   return;
+              // }
+              // if (user.name == null || user.name.isEmpty) {
+              //   await Navigator.of(context)
+              //       .push(CupertinoPageRoute(builder: (context) {
+              //     return SettingsScreen();
+              //   }));
+              //   callback();
+              // }
+              // popLoadingDialog(context, true, "加载中");
+              await Navigator.of(context)
+                  .push(CupertinoPageRoute(builder: (context) {
+                return Bookkeepping();
+              }));
             },
             child: Text(
-              '${(user == null || user.username == null || user.username.isEmpty) ? '编辑名字' : user.username}',
+              '${(user == null || user.name == null || user.name.isEmpty) ? '编辑名字' : user.name}',
               style: AppTheme.appTheme
                   .headline1(fontWeight: FontWeight.bold, fontSize: 22),
             ),

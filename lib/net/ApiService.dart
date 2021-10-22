@@ -1,30 +1,43 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:timefly/bookkeep/bill_record_response.dart';
 import 'dart:convert';
+
+import 'package:timefly/models/user.dart';
+
+import 'SimpleResponce.dart';
 
 class ApiService {
   ApiService(this.dio);
 
-  Dio dio;
+  final Dio dio;
 
-  //get请求结构
-  Future _get(String url, {Map<String, dynamic> params}) async {
-    var response = await dio.get(url, queryParameters: params);
-    return response.data;
+  Observable<User> getUser(String name) {
+    return Observable.fromFuture(
+        dio.post('app/findUserByName', data: {"name": name})).flatMap((value) {
+      if (value != null &&
+          (value.statusCode >= 200 && value.statusCode < 300)) {
+        return Observable.fromFuture(compute(parseUserBean, value.toString()));
+      } else {
+        return Observable.fromFuture(null);
+      }
+    });
   }
 
-  //post
-  Future _post(String url, Map<String, dynamic> params) async {
-    var response = await dio.post(url, data: params);
-    return response.data;
+  Observable<SimpleResponce> addBill(BillRecordModel billRecordModel) {
+    return Observable.fromFuture(
+            dio.post('app/findUserByName', data: billRecordModel.toJson()))
+        .flatMap((value) {
+      if (value != null &&
+          (value.statusCode >= 200 && value.statusCode < 300)) {
+        return Observable.fromFuture(
+            compute(paresSimpleResponce, value.toString()));
+      } else {
+        return Observable.fromFuture(null);
+      }
+    });
   }
-
-  Observable post(String url, Map<String, dynamic> params) =>
-      Observable.fromFuture(_post(url, params)).asBroadcastStream();
-
-  Observable get(String url, {Map<String, dynamic> params}) =>
-      Observable.fromFuture(_get(url, params: params)).asBroadcastStream();
 
 // Observable<AIBean> getImageAi(String url) {
 //   return Observable.fromFuture(_myDio.post('v2/api/infer/face', data: """
@@ -38,4 +51,12 @@ class ApiService {
 //     }
 //   });
 // }
+}
+
+SimpleResponce paresSimpleResponce(String value) {
+  return SimpleResponce.fromJson(json.decode(value));
+}
+
+User parseUserBean(String value) {
+  return User.fromJson(json.decode(value));
 }

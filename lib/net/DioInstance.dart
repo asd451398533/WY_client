@@ -1,8 +1,11 @@
 import 'package:dio/dio.dart';
 
+import 'ApiService.dart';
+
 class ApiDio {
   static final ApiDio _instance = ApiDio._internal();
   Dio _dio;
+  ApiService apiService;
 
   //提供了一个工厂方法来获取该类的实例
   factory ApiDio() {
@@ -19,12 +22,13 @@ class ApiDio {
 
   void init() {
     BaseOptions baseOptions = BaseOptions(
-      baseUrl: "https://www.xxxx/api",
+      baseUrl: "http://127.0.0.1:8080/",
       connectTimeout: 5000,
     );
+    _dio = Dio(baseOptions);
     _dio
       ..interceptors
           .add(LogInterceptor(responseBody: true, requestBody: true)); //添加日志
-    _dio = Dio(baseOptions);
+    apiService = ApiService(_dio);
   }
 }

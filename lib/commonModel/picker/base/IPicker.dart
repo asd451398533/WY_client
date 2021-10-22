@@ -4,9 +4,10 @@
  **/
 
 import 'package:flutter/material.dart';
-import 'package:flutter_common/commonModel/picker/base/BasePickerNotify.dart';
 
-abstract class IPicker{
+import 'BasePickerNotify.dart';
+
+abstract class IPicker {
   void initState(BasePickerNotify dismissCall, BuildContext context);
 
   void dispose();

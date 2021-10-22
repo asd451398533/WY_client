@@ -4,13 +4,13 @@
  **/
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_common/commonModel/live/LiveData.dart';
-import 'package:flutter_common/commonModel/picker/base/IPicker.dart';
+import 'package:timefly/commonModel/live/LiveData.dart';
 
 import 'BasePickerNotify.dart';
 import 'DialogRouter.dart';
 import 'IBottomPicker.dart';
 import 'ICenterPicker.dart';
+import 'IPicker.dart';
 
 class BasePicker extends StatefulWidget {
   IPicker picker;

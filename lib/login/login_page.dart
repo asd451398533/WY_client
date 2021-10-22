@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:timefly/models/user.dart';
+import 'package:timefly/net/DioInstance.dart';
 import 'package:timefly/utils/flash_helper.dart';
 import 'package:timefly/utils/system_util.dart';
 import 'package:timefly/utils/uuid.dart';
@@ -18,7 +19,7 @@ class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
   AnimationController _animationController;
 
-  String phone = '';
+  String name = '';
   String code = '';
   String sendText = 'Send';
 
@@ -70,7 +71,7 @@ class _LoginPageState extends State<LoginPage>
               height: 64,
             ),
             Text(
-              'Time Fly',
+              '你的名字',
               style: AppTheme.appTheme
                   .headline1(fontWeight: FontWeight.bold, fontSize: 20),
             ),
@@ -83,11 +84,11 @@ class _LoginPageState extends State<LoginPage>
                 curve: Interval(0, 0.3, curve: Curves.fastOutSlowIn),
               )),
               child: CustomEditField(
-                maxLength: 11,
+                maxLength: 3,
                 autoFucus: false,
-                inputType: TextInputType.phone,
+                inputType: TextInputType.text,
                 initValue: '',
-                hintText: '手机号',
+                hintText: '输入名字登入',
                 hintTextStyle: AppTheme.appTheme
                     .hint(fontWeight: FontWeight.normal, fontSize: 16),
                 textStyle: AppTheme.appTheme
@@ -105,98 +106,10 @@ class _LoginPageState extends State<LoginPage>
                     .themeText(fontWeight: FontWeight.bold, fontSize: 15),
                 onValueChanged: (value) {
                   setState(() {
-                    phone = value;
+                    name = value;
                   });
                 },
               ),
-            ),
-            SizedBox(
-              height: 16,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                ScaleTransition(
-                  scale:
-                      Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
-                    parent: _animationController,
-                    curve: Interval(0.3, 0.6, curve: Curves.fastOutSlowIn),
-                  )),
-                  child: Container(
-                    width: 250,
-                    child: CustomEditField(
-                      maxLength: 6,
-                      autoFucus: false,
-                      inputType: TextInputType.phone,
-                      initValue: '',
-                      hintText: '验证码',
-                      hintTextStyle: AppTheme.appTheme
-                          .hint(fontWeight: FontWeight.normal, fontSize: 16),
-                      textStyle: AppTheme.appTheme.headline1(
-                          fontWeight: FontWeight.normal, fontSize: 16),
-                      containerDecoration: BoxDecoration(
-                          shape: BoxShape.rectangle,
-                          borderRadius: BorderRadius.all(Radius.circular(15)),
-                          color: AppTheme.appTheme.containerBackgroundColor()),
-                      numDecoration: BoxDecoration(
-                          shape: BoxShape.rectangle,
-                          color: AppTheme.appTheme.cardBackgroundColor(),
-                          borderRadius: BorderRadius.all(Radius.circular(15)),
-                          boxShadow: AppTheme.appTheme.containerBoxShadow()),
-                      numTextStyle: AppTheme.appTheme
-                          .themeText(fontWeight: FontWeight.bold, fontSize: 15),
-                      onValueChanged: (value) {
-                        setState(() {
-                          code = value;
-                        });
-                      },
-                    ),
-                  ),
-                ),
-                SlideTransition(
-                  position: Tween<Offset>(begin: Offset(2, 0), end: Offset.zero)
-                      .animate(CurvedAnimation(
-                          parent: _animationController,
-                          curve:
-                              Interval(0.6, 0.8, curve: Curves.fastOutSlowIn))),
-                  child: GestureDetector(
-                    onTap: () {
-                      if (!hasPhone()) {
-                        return;
-                      }
-                      if (timer != null && timer.isActive) {
-                        return;
-                      }
-                      Future.delayed(Duration(seconds: 2), () {
-                        FlashHelper.toast(context, "Send success");
-                      });
-                    },
-                    onDoubleTap: () {},
-                    child: Container(
-                      alignment: Alignment.center,
-                      height: 50,
-                      width: 70,
-                      decoration: BoxDecoration(
-                          shape: BoxShape.rectangle,
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(10),
-                          ),
-                          color: hasPhone()
-                              ? AppTheme.appTheme.grandientColorEnd()
-                              : AppTheme.appTheme
-                                  .grandientColorEnd()
-                                  .withOpacity(0.5)),
-                      child: Text(
-                        sendText,
-                        style: AppTheme.appTheme.headline1(
-                            fontSize: 16,
-                            fontWeight: FontWeight.normal,
-                            textColor: Colors.white),
-                      ),
-                    ),
-                  ),
-                )
-              ],
             ),
             SizedBox(
               height: 32,
@@ -208,10 +121,13 @@ class _LoginPageState extends State<LoginPage>
               )),
               child: GestureDetector(
                 onTap: () {
-                  FlashHelper.toast(context, '登录成功');
-                  User user = User(Uuid().generateV4(), '', phone);
-                  SessionUtils.sharedInstance().login(user);
-                  Navigator.of(context).pop();
+                  ApiDio().apiService.getUser(name).listen((event) {
+                    SessionUtils.sharedInstance().login(event);
+                    FlashHelper.toast(context, '登录成功');
+                    Navigator.of(context).pop();
+                  }).onError((err) {
+                    FlashHelper.toast(context, "没有找到这个名字");
+                  });
                 },
                 onDoubleTap: () {},
                 child: Container(
@@ -220,13 +136,13 @@ class _LoginPageState extends State<LoginPage>
                   width: 220,
                   decoration: BoxDecoration(
                       boxShadow: AppTheme.appTheme.coloredBoxShadow(),
-                      gradient: hasPhoneAndCode()
+                      gradient: hasName()
                           ? AppTheme.appTheme.containerGradient()
                           : AppTheme.appTheme
                               .containerGradientWithOpacity(opacity: 0.5),
                       borderRadius: BorderRadius.all(Radius.circular(35))),
                   child: Text(
-                    'Login',
+                    'go',
                     style: AppTheme.appTheme.headline1(
                         textColor: Colors.white,
                         fontSize: 18,
@@ -241,11 +157,7 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  bool hasPhone() {
-    return phone.length == 11;
-  }
-
-  bool hasPhoneAndCode() {
-    return hasPhone() && code.length == 6;
+  bool hasName() {
+    return name.length > 0;
   }
 }

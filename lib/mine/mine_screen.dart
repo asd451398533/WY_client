@@ -2,12 +2,18 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timefly/app_theme.dart';
 import 'package:timefly/blocs/theme/theme_bloc.dart';
+import 'package:timefly/blocs/theme/theme_event.dart';
 import 'package:timefly/blocs/theme/theme_state.dart';
+import 'package:timefly/login/login_page.dart';
 import 'package:timefly/mine/mine_screen_views.dart';
 import 'package:timefly/mine/settings_screen.dart';
+import 'package:timefly/models/user.dart';
 import 'package:timefly/utils/system_util.dart';
+
+import 'change_theme_screen.dart';
 
 class MineScreen extends StatefulWidget {
   @override
@@ -21,6 +27,9 @@ class _MineScreenState extends State<MineScreen> {
       builder: (context, state) {
         SystemUtil.changeStateBarMode(
             AppTheme.appTheme.isDark() ? Brightness.light : Brightness.dark);
+        AppThemeMode appThemeMode = state.themeMode;
+        AppThemeColorMode appThemeColorMode = state.themeColorMode;
+        AppFontMode appFontMode = state.fontMode;
         return Stack(
           children: [
             ListView(physics: ClampingScrollPhysics(), children: [
@@ -34,7 +43,25 @@ class _MineScreenState extends State<MineScreen> {
               EnterView(),
               SizedBox(
                 height: 100,
-              )
+              ),
+              DarkModeView(
+                appThemeMode: appThemeMode,
+                appThemeColorMode: appThemeColorMode,
+                appFontMode: appFontMode,
+              ),
+              SizedBox(
+                height: 32,
+              ),
+              ThemeColorView(
+                currentColorMode: appThemeColorMode,
+                onTap: (colorMode) async {
+                  BlocProvider.of<ThemeBloc>(context).add(
+                      ThemeChangeEvent(appThemeMode, colorMode, appFontMode));
+                  SharedPreferences shared =
+                      await SharedPreferences.getInstance();
+                  shared.setString(COLOR_MODE, colorMode.toString());
+                },
+              ),
             ]),
             GestureDetector(
               onTap: () async {
@@ -50,22 +77,32 @@ class _MineScreenState extends State<MineScreen> {
                     top: MediaQuery.of(context).padding.top + 26),
                 height: 45,
                 child: Container(
-                  alignment: Alignment.center,
-                  width: 90,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(26),
-                          bottomLeft: Radius.circular(26)),
-                      color: AppTheme.appTheme.cardBackgroundColor(),
-                      boxShadow: AppTheme.appTheme.containerBoxShadow()),
-                  child: SvgPicture.asset(
-                    'assets/images/icon_jiaohuan.svg',
-                    width: 25,
-                    height: 25,
-                    color: AppTheme.appTheme.normalColor().withOpacity(0.8),
-                  ),
-                ),
+                    alignment: Alignment.center,
+                    width: 90,
+                    decoration: BoxDecoration(
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(26),
+                            bottomLeft: Radius.circular(26)),
+                        color: AppTheme.appTheme.cardBackgroundColor(),
+                        boxShadow: AppTheme.appTheme.containerBoxShadow()),
+                    child: GestureDetector(
+                      onTap: () {
+                        SessionUtils.sharedInstance().logout();
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          CupertinoPageRoute(builder: (context) {
+                            return LoginPage();
+                          }),
+                          (route) => route == null,
+                        );
+                      },
+                      child: Text(
+                        '退出',
+                        style: AppTheme.appTheme.headline1(
+                            fontWeight: FontWeight.bold, fontSize: 15),
+                      ),
+                    )),
               ),
             )
           ],

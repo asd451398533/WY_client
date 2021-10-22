@@ -40,6 +40,8 @@ dependencies:
   flash: ^2.0.0
   fl_chart: ^0.40.0
   dio: ^3.0.9
+  flutter_screenutil: ^0.5.3
+  flutter_datetime_picker: ^1.5.1
   alarm_plugin:
     git:
       url: https://github.com/designDo/alarm_plugin.git
@@ -66,6 +68,18 @@ flutter:
   assets:
     - assets/images/
     - assets/
+    - assets/data/
+    - assets/images/icons/
+    - assets/images/category/car/
+    - assets/images/category/catering/
+    - assets/images/category/housing/
+    - assets/images/category/humanfeelings/
+    - assets/images/category/income/
+    - assets/images/category/other/
+    - assets/images/category/shopping/
+    - assets/images/category/traffic/
+    - assets/images/category/daily/
+    - assets/images/category/recreation/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

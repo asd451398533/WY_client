@@ -1,9 +1,19 @@
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:timefly/bookkeep/bill_record_response.dart';
 import 'package:timefly/models/habit.dart';
 import 'package:timefly/models/user.dart';
 
 class DatabaseProvider {
+  /// 支出类别表
+  final _initialExpenCategory = 'initialExpenCategory';
+
+  /// 收入类别表
+  final _initialIncomeCategory = 'initialIncomeCategory';
+
   DatabaseProvider._();
 
   static final DatabaseProvider db = DatabaseProvider._();
@@ -28,9 +38,55 @@ class DatabaseProvider {
 
     return await openDatabase(
       join(dbPath, 'habitDB.db'),
-      version: 1,
+      version: 3,
       onCreate: (Database database, int version) async {
         print("Creating habit table");
+        // 支出类别表
+        String queryStringExpen = """
+          CREATE TABLE $_initialExpenCategory(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            image TEXT,
+            sort INTEGER
+          )
+          """;
+        await database.execute(queryStringExpen);
+
+        // 收入类别表
+        String queryStringIncome = """
+          CREATE TABLE $_initialIncomeCategory(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            image TEXT,
+            sort INTEGER
+          )
+          """;
+        await database.execute(queryStringIncome);
+
+        // 初始化支出类别表数据
+        rootBundle
+            .loadString('assets/data/initialExpenCategory.json')
+            .then((value) {
+          List list = jsonDecode(value);
+          List<CategoryItem> models =
+              list.map((i) => CategoryItem.fromJson(i)).toList();
+          models.forEach((item) async {
+            await database.insert(_initialExpenCategory, item.toJson());
+          });
+        });
+
+        // 初始化收入类别表数据
+        rootBundle
+            .loadString('assets/data/initialIncomeCategory.json')
+            .then((value) {
+          List list = jsonDecode(value);
+          List<CategoryItem> models =
+              list.map((i) => CategoryItem.fromJson(i)).toList();
+          models.forEach((item) async {
+            await database.insert(_initialIncomeCategory, item.toJson());
+          });
+        });
+
         await database.execute(
           "CREATE TABLE habits ("
           "id TEXT,"
@@ -55,12 +111,33 @@ class DatabaseProvider {
             ")");
 
         await database.execute("CREATE TABLE user ("
-            "username TEXT,"
+            "id TEXT,"
+            "key TEXT,"
+            "name TEXT,"
             "phone TEXT,"
-            "id TEXT"
+            "birth TEXT,"
+            "password TEXT,"
+            "users TEXT,"
+            "img TEXT"
             ")");
       },
     );
+  }
+
+  /// 获取记账支出类别列表
+  Future<List> getInitialExpenCategory() async {
+    var dbClient = await database;
+    var result = await dbClient
+        .rawQuery('SELECT * FROM $_initialExpenCategory ORDER BY sort ASC');
+    return result.toList();
+  }
+
+  /// 获取记账收入类别列表
+  Future<List> getInitialIncomeCategory() async {
+    var dbClient = await database;
+    var result = await dbClient
+        .rawQuery('SELECT * FROM $_initialIncomeCategory ORDER BY sort ASC');
+    return result.toList();
   }
 
   Future<User> getCurrentUser() async {

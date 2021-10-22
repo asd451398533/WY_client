@@ -4,6 +4,12 @@
  **/
 
 import 'package:flutter/material.dart';
+import 'package:sleek_circular_slider/sleek_circular_slider.dart';
+import 'package:timefly/commonModel/picker/pouring_hour_glass.dart';
+import 'package:timefly/res/colours.dart';
+import 'package:timefly/res/font.dart';
+import 'package:timefly/res/styles.dart';
+import 'package:timefly/utils/hex_color.dart';
 
 import 'base/DialogRouter.dart';
 
@@ -43,10 +49,63 @@ class LoadingDialog extends Dialog {
                   }
                 },
               ),
-              _dialog()
+              _aDialog()
             ],
           )),
     );
+  }
+
+  Widget _aDialog() {
+    return Container(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          // SpinKitPouringHourglass(color: Color(0xFF333333)),
+          Container(
+            width: 80,
+            height: 80,
+            child: _center(),
+          ),
+          Gaps.vGap(16),
+          Text(
+            "加载中",
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: Font.font_sp14, color: Colours.gray),
+            maxLines: 5,
+          ),
+          Gaps.vGap(30),
+        ],
+      ),
+    );
+  }
+
+  Widget _center() {
+    final customWidth08 =
+        CustomSliderWidths(trackWidth: 1, progressBarWidth: 5, shadowWidth: 50);
+    final customColors08 = CustomSliderColors(
+        dotColor: Colors.white.withOpacity(0.5),
+        trackColor: HexColor('#7EFFFF').withOpacity(0.1),
+        progressBarColors: [
+          HexColor('#3586FC').withOpacity(0.1),
+          HexColor('#FF8876').withOpacity(0.25),
+          HexColor('#FAFF76').withOpacity(0.5)
+        ],
+        shadowColor: HexColor('#133657'),
+        shadowMaxOpacity: 0.02);
+    final CircularSliderAppearance appearance08 = CircularSliderAppearance(
+        customWidths: customWidth08,
+        customColors: customColors08,
+        size: 230.0,
+        spinnerMode: true,
+        spinnerDuration: 1000);
+    final viewModel08 = SleekCircularSlider(
+      onChangeStart: (double value) {},
+      onChangeEnd: (double value) {},
+      appearance: appearance08,
+    );
+    return viewModel08;
   }
 
   Widget _dialog() {

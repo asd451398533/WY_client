@@ -122,7 +122,7 @@ class _ThemeColorViewState extends State<ThemeColorView> {
   void initState() {
     pageController = PageController(
         initialPage: currentPage, viewportFraction: viewPortFraction);
-    Future.delayed(Duration(milliseconds: 500), () {
+    Future.delayed(Duration(milliseconds: 0), () {
       scrollToIndex(widget.currentColorMode);
     });
     super.initState();
@@ -130,7 +130,7 @@ class _ThemeColorViewState extends State<ThemeColorView> {
 
   void scrollToIndex(AppThemeColorMode colorMode) {
     pageController.animateToPage(AppThemeColorMode.values.indexOf(colorMode),
-        duration: Duration(milliseconds: 500), curve: Curves.fastOutSlowIn);
+        duration: Duration(milliseconds: 10), curve: Curves.fastOutSlowIn);
   }
 
   @override
@@ -165,7 +165,10 @@ class _ThemeColorViewState extends State<ThemeColorView> {
         child: PageView.builder(
           onPageChanged: (pos) {
             setState(() {
+              print("POSS ${pos}");
               currentPage = pos;
+              widget.onTap(AppThemeColorMode.values[currentPage]);
+              scrollToIndex(AppThemeColorMode.values[currentPage]);
             });
           },
           physics: BouncingScrollPhysics(),

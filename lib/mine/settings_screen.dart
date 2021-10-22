@@ -52,24 +52,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                   ChangeUserInfoView(),
-                  DarkModeView(
-                    appThemeMode: appThemeMode,
-                    appThemeColorMode: appThemeColorMode,
-                    appFontMode: appFontMode,
-                  ),
-                  SizedBox(
-                    height: 32,
-                  ),
-                  ThemeColorView(
-                    currentColorMode: appThemeColorMode,
-                    onTap: (colorMode) async {
-                      BlocProvider.of<ThemeBloc>(context).add(ThemeChangeEvent(
-                          appThemeMode, colorMode, appFontMode));
-                      SharedPreferences shared =
-                          await SharedPreferences.getInstance();
-                      shared.setString(COLOR_MODE, colorMode.toString());
-                    },
-                  ),
                   GestureDetector(
                     onTap: () {
                       SessionUtils.sharedInstance().logout();
@@ -143,11 +125,11 @@ class ChangeUserInfoView extends StatefulWidget {
 }
 
 class _ChangeUserInfoViewState extends State<ChangeUserInfoView> {
-  String userName;
+  String userName = "www";
 
   @override
   void initState() {
-    userName = SessionUtils.sharedInstance().currentUser.username;
+    // userName = SessionUtilssionUtils.sharedInstance().currentUser.name;
     super.initState();
   }
 
@@ -210,7 +192,7 @@ class _ChangeUserInfoViewState extends State<ChangeUserInfoView> {
                 color: AppTheme.appTheme.containerBackgroundColor()),
             height: 65,
             child: Text(
-              SessionUtils.sharedInstance().currentUser.phone,
+              "2222",
               style: AppTheme.appTheme.numHeadline1(
                   fontWeight: FontWeight.bold,
                   fontSize: 23,
