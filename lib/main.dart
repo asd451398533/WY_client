@@ -10,6 +10,7 @@ import 'package:timefly/blocs/theme/theme_bloc.dart';
 import 'package:timefly/blocs/theme/theme_event.dart';
 import 'package:timefly/blocs/theme/theme_state.dart';
 import 'package:timefly/home_screen.dart';
+import 'package:timefly/login/login_page.dart';
 import 'package:timefly/notification/notification_plugin.dart';
 import 'package:timefly/utils/date_util.dart';
 
@@ -50,7 +51,9 @@ class MyApp extends StatelessWidget {
               theme: AppTheme.appTheme
                   .themeData()
                   .copyWith(platform: TargetPlatform.iOS),
-              home: HomeScreen(),
+              home: SessionUtils().currentUser == null
+                  ? LoginPage()
+                  : HomeScreen(),
             );
           },
         ),

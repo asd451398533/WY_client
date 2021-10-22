@@ -179,8 +179,10 @@ class _BookkeeppingState extends State<Bookkeepping>
                     child: Text('$str'),
                   ))
               .toList(),
+          labelColor: AppTheme.appTheme.normalColor(),
           labelStyle: AppTheme.appTheme
               .headline1(fontWeight: FontWeight.bold, fontSize: 16),
+          unselectedLabelColor: AppTheme.appTheme.normalColor(),
           unselectedLabelStyle: AppTheme.appTheme
               .headline1(fontWeight: FontWeight.normal, fontSize: 16),
           indicatorWeight: 2,

@@ -22,8 +22,12 @@ class ApiDio {
 
   void init() {
     BaseOptions baseOptions = BaseOptions(
-      baseUrl: "http://127.0.0.1:8080/",
-      connectTimeout: 5000,
+      // baseUrl: "http://127.0.0.1:520/",
+      baseUrl: "http://212.129.154.171:520/",
+      contentType: "application/json; charset=utf-8",
+      connectTimeout: 1000 * 20,
+      receiveTimeout: 1000 * 20,
+      responseType: ResponseType.json,
     );
     _dio = Dio(baseOptions);
     _dio

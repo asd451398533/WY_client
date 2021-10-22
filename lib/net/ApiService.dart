@@ -15,7 +15,11 @@ class ApiService {
 
   Observable<User> getUser(String name) {
     return Observable.fromFuture(
-        dio.post('app/findUserByName', data: {"name": name})).flatMap((value) {
+        dio.post('app/findUserByName', data:  <String, dynamic>{"name": name}
+     ,     options: Options(
+          contentType: Headers.jsonContentType,
+        ),
+    )).flatMap((value) {
       if (value != null &&
           (value.statusCode >= 200 && value.statusCode < 300)) {
         return Observable.fromFuture(compute(parseUserBean, value.toString()));

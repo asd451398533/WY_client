@@ -126,6 +126,7 @@ class _LoginPageState extends State<LoginPage>
                     FlashHelper.toast(context, '登录成功');
                     Navigator.of(context).pop();
                   }).onError((err) {
+                    print("ERRR"+err.toString());
                     FlashHelper.toast(context, "没有找到这个名字");
                   });
                 },
