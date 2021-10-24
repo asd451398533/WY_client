@@ -18,6 +18,10 @@ class ApiDio {
     init();
   }
 
+  Dio getDio() {
+    return _dio;
+  }
+
   // Singleton._internal(); // 不需要初始化
 
   void init() {

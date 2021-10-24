@@ -4,6 +4,7 @@ import 'package:timefly/blocs/habit/habit_state.dart';
 import 'package:timefly/db/database_provider.dart';
 import 'package:timefly/models/habit.dart';
 import 'package:timefly/models/user.dart';
+import 'package:timefly/net/DioInstance.dart';
 
 class HabitsBloc extends Bloc<HabitsEvent, HabitsState> {
   ///初始化状态为正在加载

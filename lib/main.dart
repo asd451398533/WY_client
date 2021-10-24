@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:timefly/app_theme.dart';
+import 'package:timefly/blocs/bill/bill_event_1.dart';
 import 'package:timefly/blocs/habit/habit_bloc.dart';
 import 'package:timefly/blocs/habit/habit_event.dart';
 import 'package:timefly/blocs/theme/theme_bloc.dart';
@@ -14,6 +15,7 @@ import 'package:timefly/login/login_page.dart';
 import 'package:timefly/notification/notification_plugin.dart';
 import 'package:timefly/utils/date_util.dart';
 
+import 'blocs/bill/bill_bloc.dart';
 import 'blocs/bloc_observer.dart';
 import 'models/user.dart';
 
@@ -27,26 +29,20 @@ void main() async {
     DeviceOrientation.portraitDown
   ]).then((_) => runApp(MyApp()));
 }
-
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ThemeBloc>(
       create: (context) => ThemeBloc()..add(ThemeLoadEvnet()),
-      child: BlocProvider<HabitsBloc>(
-        create: (context) => HabitsBloc()..add(HabitsLoad()),
+      child: BlocProvider<BillBloc>(
+        create: (context) => BillBloc()..add(BillLoad()),
         child: BlocBuilder<ThemeBloc, ThemeState>(
           builder: (context, themeState) {
-            Future.delayed(
-                Duration(milliseconds: DateUtil.millisecondsUntilTomorrow()),
-                () {
-              BlocProvider.of<HabitsBloc>(context).add(HabitsLoad());
-            });
             SessionUtils.sharedInstance()
-                .setBloc(BlocProvider.of<HabitsBloc>(context));
+                .setBloc(BlocProvider.of<BillBloc>(context));
             return MaterialApp(
-              title: 'Checkio',
+              title: 'WY',
               debugShowCheckedModeBanner: false,
               theme: AppTheme.appTheme
                   .themeData()

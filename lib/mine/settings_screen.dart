@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timefly/blocs/theme/theme_bloc.dart';
 import 'package:timefly/blocs/theme/theme_event.dart';
 import 'package:timefly/blocs/theme/theme_state.dart';
+import 'package:timefly/login/login_page.dart';
 import 'package:timefly/models/user.dart';
 import 'package:timefly/utils/flash_helper.dart';
 import 'package:timefly/utils/system_util.dart';
@@ -51,11 +52,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                   ),
-                  ChangeUserInfoView(),
+                  // ChangeUserInfoView(),
+                  DarkModeView(
+                    appThemeMode: appThemeMode,
+                    appThemeColorMode: appThemeColorMode,
+                    appFontMode: appFontMode,
+                  ),
+                  SizedBox(
+                    height: 32,
+                  ),
+                  ThemeColorView(
+                    currentColorMode: appThemeColorMode,
+                    onTap: (colorMode) async {
+                      BlocProvider.of<ThemeBloc>(context).add(
+                          ThemeChangeEvent(appThemeMode, colorMode, appFontMode));
+                      SharedPreferences shared =
+                      await SharedPreferences.getInstance();
+                      shared.setString(COLOR_MODE, colorMode.toString());
+                    },
+                  ),
                   GestureDetector(
                     onTap: () {
                       SessionUtils.sharedInstance().logout();
-                      Navigator.of(context).pop();
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        new MaterialPageRoute(builder: (context) => new LoginPage()),
+                            (Route<dynamic> route) => false,
+                      );
                     },
                     child: Container(
                       alignment: Alignment.center,

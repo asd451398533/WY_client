@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:timefly/db/BillDB.dart';
-import 'package:timefly/db/database_provider.dart';
+import 'package:timefly/blocs/bill/bill_bloc.dart';
+import 'package:timefly/blocs/bill/bill_event.dart';
+import 'package:timefly/blocs/bill/bill_event_1.dart';
 import 'package:timefly/models/user.dart';
 import 'package:timefly/net/DioInstance.dart';
 import 'package:timefly/res/colours.dart';
@@ -12,11 +14,10 @@ import 'package:timefly/util/utils.dart';
 import 'package:timefly/utils/flash_helper.dart';
 import 'package:timefly/widget/app_bar.dart';
 import 'package:timefly/widget/highlight_well.dart';
-import 'package:timefly/widget/input_textview_dialog.dart';
 import 'package:timefly/widget/number_keyboard.dart';
-import 'package:timefly/widget/tab_indicator.dart';
 
 import '../app_theme.dart';
+import '../home_screen.dart';
 import 'bill_record_response.dart';
 
 class Bookkeepping extends StatefulWidget {
@@ -49,34 +50,31 @@ class _BookkeeppingState extends State<Bookkeepping>
   final List<String> tabs = ['支出', '收入'];
 
   /// 获取支出类别数据
-  Future<void> _loadExpenDatas() async {
-    DatabaseProvider.db.getInitialExpenCategory().then((list) {
-      List<CategoryItem> models =
-          list.map((i) => CategoryItem.fromJson(i)).toList();
+  void _loadExpenDatas() {
+    ApiDio().apiService.loadExpenDatas().listen((event) {
       _expenObjects.clear();
-      _expenObjects.addAll(models);
-
+      _expenObjects.addAll(event);
       if (widget.recordModel != null && widget.recordModel.type == 1) {
         _selectedIndexLeft = _expenObjects.indexWhere(
             (item) => item.name == widget.recordModel.categoryImage);
       }
-
       setState(() {});
+    }).onError((e) {
+      FlashHelper.toast(context, '读取数据库出错');
     });
   }
 
-  Future<void> _loadIncomeDatas() async {
-    DatabaseProvider.db.getInitialIncomeCategory().then((list) {
-      List<CategoryItem> models =
-          list.map((i) => CategoryItem.fromJson(i)).toList();
+  void _loadIncomeDatas() {
+    ApiDio().apiService.loadIncomeDatas().listen((event) {
       _inComeObjects.clear();
-      _inComeObjects.addAll(models);
+      _inComeObjects.addAll(event);
       if (widget.recordModel != null && widget.recordModel.type == 2) {
         _selectedIndexRight = _inComeObjects.indexWhere(
             (item) => item.name == widget.recordModel.categoryImage);
       }
-
       setState(() {});
+    }).onError((e) {
+      FlashHelper.toast(context, '读取数据库出错');
     });
   }
 
@@ -370,7 +368,7 @@ class _BookkeeppingState extends State<Bookkeepping>
               if (_isAdd == true) {
                 _addNumber();
               }
-              _record();
+              _record(isGoOn: true);
               _clearZero();
               setState(() {});
             },
@@ -406,11 +404,10 @@ class _BookkeeppingState extends State<Bookkeepping>
   }
 
   /// 记账保存
-  void _record() {
+  void _record({bool isGoOn = false}) {
     if (_numberString.isEmpty || _numberString == '0.') {
       return;
     }
-
     _isAdd = false;
     CategoryItem item;
     if (_tabController.index == 0) {
@@ -418,24 +415,48 @@ class _BookkeeppingState extends State<Bookkeepping>
     } else {
       item = _inComeObjects[_selectedIndexRight];
     }
-
-    BillRecordModel model = BillRecordModel()
-      ..id = null
-      ..money = double.parse(_numberString)
-      ..remark = _remark
-      ..userKey = SessionUtils().currentUser.key
-      ..type = _tabController.index + 1
-      ..categoryImage = item.name
-      ..createTime =
-          DateTime.fromMillisecondsSinceEpoch(_time.millisecondsSinceEpoch)
-              .toString()
-      ..createTimestamp = _time.millisecondsSinceEpoch
-      ..updateTime =
-          DateTime.fromMillisecondsSinceEpoch(_time.millisecondsSinceEpoch)
-              .toString()
-      ..updateTimestamp = _time.millisecondsSinceEpoch;
-
-    ApiDio().apiService.addBill(model).listen((event) {}).onError((err) {
+    BillRecordModel model;
+    if (widget.recordModel != null) {
+      //修改
+      model = widget.recordModel
+        ..money = double.parse(_numberString)
+        ..remark = _remark
+        ..userKey = SessionUtils().currentUser.key
+        ..type = _tabController.index + 1
+        ..categoryImage = item.name
+        ..updateTime =
+            DateTime.fromMillisecondsSinceEpoch(_time.millisecondsSinceEpoch)
+                .toString()
+        ..updateTimestamp = _time.millisecondsSinceEpoch;
+    } else {
+      model = BillRecordModel()
+        ..id = null
+        ..money = double.parse(_numberString)
+        ..remark = _remark
+        ..userKey = SessionUtils().currentUser.key
+        ..type = _tabController.index + 1
+        ..categoryImage = item.name
+        ..createTime =
+            DateTime.fromMillisecondsSinceEpoch(_time.millisecondsSinceEpoch)
+                .toString()
+        ..createTimestamp = _time.millisecondsSinceEpoch
+        ..updateTime =
+            DateTime.fromMillisecondsSinceEpoch(_time.millisecondsSinceEpoch)
+                .toString()
+        ..updateTimestamp = _time.millisecondsSinceEpoch;
+    }
+    ApiDio().apiService.addBill(model).listen((event) {
+      if (event.code == 200) {
+        BlocProvider.of<BillBloc>(appContext).add(BillLoad());
+        if (isGoOn) {
+          FlashHelper.toast(context, '提交成功，请继续');
+        } else {
+          Navigator.pop(context);
+        }
+      } else {
+        FlashHelper.toast(context, '提交失败');
+      }
+    }).onError((err) {
       FlashHelper.toast(context, '提交失败');
     });
   }

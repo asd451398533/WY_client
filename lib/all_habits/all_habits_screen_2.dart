@@ -49,106 +49,99 @@ class _AllHabitScreenState extends State<AllHabitScreen> {
                 child: Row(
                   children: [
                     Text(
-                      '所有习惯',
+                      '',
                       style: AppTheme.appTheme.headline1(
                           textColor: Colors.white,
                           fontSize: 20,
                           fontWeight: FontWeight.bold),
                     ),
                     Expanded(child: SizedBox()),
-                    InkWell(
-                      onTap: () {
-                        Navigator.of(context)
-                            .push(CupertinoPageRoute(builder: (context) {
-                          return HabitEditPage(
-                            isModify: false,
-                            habit: null,
-                          );
-                        }));
-                      },
-                      child: SvgPicture.asset(
-                        'assets/images/jia.svg',
-                        color: Colors.white,
-                        width: 30,
-                        height: 30,
-                      ),
-                    ),
+
                     SizedBox(
                       width: 16,
                     )
                   ],
                 ),
               ),
-              Expanded(
-                child: BlocBuilder<HabitsBloc, HabitsState>(
-                  builder: (context, state) {
-                    if (state is HabitsLoadInProgress) {
-                      return Container(
-                        child: Center(
-                          child: CupertinoActivityIndicator(),
-                        ),
-                      );
-                    }
-                    if (state is HabitsLodeFailure) {
-                      return Container(
-                        child: Center(
-                          child: Text('加载出错啦...'),
-                        ),
-                      );
-                    }
-                    List<Habit> habits = (state as HabitLoadSuccess).habits;
-
-                    List<CompleteTime> tabs = filterCompleteTime(habits);
-                    return DefaultTabController(
-                      length: tabs.length,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: EdgeInsets.only(left: 16, right: 16),
-                            child: TabBar(
-                              tabs: tabs
-                                  .map((time) => Container(
-                                        alignment: Alignment.center,
-                                        width: 60,
-                                        height: 38,
-                                        child: Text(
-                                            '${CompleteTime.getTime(time.time)}'),
-                                      ))
-                                  .toList(),
-                              labelColor: Colors.white,
-                              labelStyle: AppTheme.appTheme.headline1(
-                                  textColor: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16),
-                              unselectedLabelColor: Colors.white70,
-                              unselectedLabelStyle: AppTheme.appTheme.headline1(
-                                  textColor: Colors.white70,
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 16),
-                              indicator: BorderTabIndicator(
-                                  indicatorHeight: 36, textScaleFactor: 0.8),
-                              isScrollable: true,
-                            ),
-                          ),
-                          SizedBox(
-                            height: 3,
-                          ),
-                          Expanded(
-                            child: TabBarView(
-                              children: tabs
-                                  .map((time) => AllHabitListView(
-                                        habits: filterHabits(habits, time.time),
-                                      ))
-                                  .toList(),
-                            ),
-                          )
-                        ],
-                      ),
-                    );
-                  },
-                ),
+              Expanded(child:
+                  Container(
+                    alignment: Alignment.center,
+                    child: Text("施工中"
+                    ,style: AppTheme.appTheme.headline1(
+                        fontSize: 16
+                      ),),
+                  )
               )
+              // Expanded(
+              //   child: BlocBuilder<HabitsBloc, HabitsState>(
+              //     builder: (context, state) {
+              //       if (state is HabitsLoadInProgress) {
+              //         return Container(
+              //           child: Center(
+              //             child: CupertinoActivityIndicator(),
+              //           ),
+              //         );
+              //       }
+              //       if (state is HabitsLodeFailure) {
+              //         return Container(
+              //           child: Center(
+              //             child: Text('加载出错啦...'),
+              //           ),
+              //         );
+              //       }
+              //       List<Habit> habits = (state as HabitLoadSuccess).habits;
+              //
+              //       List<CompleteTime> tabs = filterCompleteTime(habits);
+              //       return DefaultTabController(
+              //         length: tabs.length,
+              //         child: Column(
+              //           crossAxisAlignment: CrossAxisAlignment.start,
+              //           children: [
+              //             Container(
+              //               margin: EdgeInsets.only(left: 16, right: 16),
+              //               child: TabBar(
+              //                 tabs: tabs
+              //                     .map((time) => Container(
+              //                           alignment: Alignment.center,
+              //                           width: 60,
+              //                           height: 38,
+              //                           child: Text(
+              //                               '${CompleteTime.getTime(time.time)}'),
+              //                         ))
+              //                     .toList(),
+              //                 labelColor: Colors.white,
+              //                 labelStyle: AppTheme.appTheme.headline1(
+              //                     textColor: Colors.white,
+              //                     fontWeight: FontWeight.bold,
+              //                     fontSize: 16),
+              //                 unselectedLabelColor: Colors.white70,
+              //                 unselectedLabelStyle: AppTheme.appTheme.headline1(
+              //                     textColor: Colors.white70,
+              //                     fontWeight: FontWeight.normal,
+              //                     fontSize: 16),
+              //                 indicator: BorderTabIndicator(
+              //                     indicatorHeight: 36, textScaleFactor: 0.8),
+              //                 isScrollable: true,
+              //               ),
+              //             ),
+              //             SizedBox(
+              //               height: 3,
+              //             ),
+              //             Expanded(
+              //               child: TabBarView(
+              //                 children: tabs
+              //                     .map((time) => AllHabitListView(
+              //                           habits: filterHabits(habits, time.time),
+              //                         ))
+              //                     .toList(),
+              //               ),
+              //             )
+              //           ],
+              //         ),
+              //       );
+              //     },
+              //   ),
+              // )
             ],
           ),
         )

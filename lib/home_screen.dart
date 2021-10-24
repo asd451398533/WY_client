@@ -8,6 +8,8 @@ import 'package:timefly/widget/appbar/fluid_nav_bar.dart';
 
 import 'all_habits/all_habits_screen_2.dart';
 
+BuildContext appContext;
+
 class HomeScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -31,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    appContext = context;
     ScreenUtil.instance = ScreenUtil(width: 750, height: 1334)..init(context);
     return Scaffold(
       extendBody: true,

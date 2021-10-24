@@ -6,36 +6,30 @@ import 'package:timefly/add_habit/edit_name.dart';
 import 'package:timefly/app_theme.dart';
 import 'package:timefly/blocs/habit/habit_bloc.dart';
 import 'package:timefly/blocs/record_bloc.dart';
+import 'package:timefly/bookkeep/bill_record_response.dart';
 import 'package:timefly/models/habit.dart';
 import 'package:timefly/models/user.dart';
+import 'package:timefly/net/DioInstance.dart';
+import 'package:timefly/util/utils.dart';
 import 'package:timefly/utils/date_util.dart';
 import 'package:timefly/utils/habit_util.dart';
 import 'package:timefly/utils/pair.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 import 'package:time/time.dart';
 
-class HabitCheckView extends StatefulWidget {
-  ///首页签到进入，start 和 end 是一个周期，而详情进入是某一天，需要单独判断
-  final bool isFromDetail;
-  final DateTime start;
-  final DateTime end;
+class BillMarkView extends StatefulWidget {
+  final BillRecordModel value;
 
-  final String habitId;
-
-  const HabitCheckView(
-      {Key key, this.habitId, this.start, this.end, this.isFromDetail})
-      : super(key: key);
+  const BillMarkView({Key key, this.value}) : super(key: key);
 
   @override
-  _HabitCheckViewState createState() => _HabitCheckViewState();
+  _BillMarkViewState createState() => _BillMarkViewState();
 }
 
-class _HabitCheckViewState extends State<HabitCheckView> {
+class _BillMarkViewState extends State<BillMarkView> {
   final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
   final SlidableController slidableController = SlidableController();
   final ScrollController scrollController = ScrollController();
-
-  List<HabitRecord> habitRecords = [];
 
   @override
   void initState() {
@@ -45,82 +39,106 @@ class _HabitCheckViewState extends State<HabitCheckView> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => RecordBloc(BlocProvider.of<HabitsBloc>(context))
-        ..add(RecordLoad(widget.habitId, widget.start, widget.end)),
+      create: (context) => RecordBloc()..add(RecordLoad(widget.value)),
       child: BlocBuilder<RecordBloc, RecordState>(
         builder: (context, state) {
           if (state is RecordLoadSuccess) {
-            habitRecords = HabitUtil.filterHabitRecordsWithTime(state.records,
-                start: widget.start, end: widget.end);
             return Scaffold(
               backgroundColor: AppTheme.appTheme.containerBackgroundColor(),
-              body: Stack(
+              body: Column(
                 children: [
                   Container(
-                    child: AnimatedList(
-                      key: listKey,
-                      padding: EdgeInsets.only(top: 50, bottom: 16),
-                      controller: scrollController,
-                      initialItemCount: habitRecords.length,
-                      itemBuilder: (context, index, animation) {
-                        return getCheckItemView(
-                            context, habitRecords[index], animation);
-                      },
+                    decoration: BoxDecoration(
+                        boxShadow: AppTheme.appTheme.coloredBoxShadow(),
+                        gradient: AppTheme.appTheme.containerGradient(),),
+                    height: 100,
+                    child: Row(
+                      children: [
+                        Padding(padding:EdgeInsets.only(left: 36)
+                          ,child: Image.asset(
+                          Utils.getImagePath('category/${getCategoryItem().image}'),
+                          height: 20,
+                          width: 20,
+                          color: Colors.black,
+                        ),),
+                        Padding(
+                          padding: EdgeInsets.only(left: 20),
+                          child: Text(
+                            getCategoryItem().name,
+                            style: AppTheme.appTheme
+                                .headline1(fontWeight: FontWeight.normal, fontSize: 22),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 10),
+                          child: Text(
+                            "+${widget.value.money}",
+                            style: AppTheme.appTheme
+                                .headline1(
+                                fontWeight: FontWeight.normal, fontSize: 22),
+                          ),
+                        ),
+                        Expanded(child: Container()),
+                        Container(
+                          width: 50,
+                          margin: EdgeInsets.only(right: 16, top: 16),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: SvgPicture.asset(
+                              'assets/images/guanbi.svg',
+                              color: AppTheme.appTheme.normalColor(),
+                              width: 40,
+                              height: 40,
+                            ),
+                          ),
+                        )
+                      ],
                     ),
                   ),
-                  Container(
-                    width: double.infinity,
-                    alignment: Alignment.topRight,
-                    margin: EdgeInsets.only(right: 16, top: 16),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: SvgPicture.asset(
-                        'assets/images/guanbi.svg',
-                        color: AppTheme.appTheme.normalColor(),
-                        width: 40,
-                        height: 40,
+                  Expanded(
+                      child: Stack(
+                    children: [
+                      Container(
+                        child: AnimatedList(
+                          key: listKey,
+                          padding: EdgeInsets.only(top: 10, bottom: 16),
+                          controller: scrollController,
+                          initialItemCount: state.records.length,
+                          itemBuilder: (context, index, animation) {
+                            return getCheckItemView(context, state.records,
+                                state.records[index], animation);
+                          },
+                        ),
                       ),
-                    ),
-                  )
+                    ],
+                  ))
                 ],
               ),
               floatingActionButton: FloatingActionButton(
                 onPressed: () async {
-                  int checkTime;
-                  if (widget.isFromDetail) {
-                    ///判断是否为当天
-                    ///当天，time: DateTime.now().millisecondsSinceEpoch
-                    ///N天 time: DateTime.now().copyWith(start.year,start.month,satrt.day).millisecondsSinceEpoch
-                    ///即是 N天年月日 and 此时的时分秒
-                    if (DateUtil.isToday(widget.start.millisecondsSinceEpoch)) {
-                      checkTime = DateTime.now().millisecondsSinceEpoch;
-                    } else {
-                      checkTime = DateTime.now()
-                          .copyWith(
-                              year: widget.start.year,
-                              month: widget.start.month,
-                              day: widget.start.day)
-                          .millisecondsSinceEpoch;
-                    }
-                  } else {
-                    checkTime = DateTime.now().millisecondsSinceEpoch;
-                  }
+                  int checkTime = DateTime.now().millisecondsSinceEpoch;
+                  var remarkBean = RemarkBean()
+                    ..isDelete = 0
+                    ..userKey = SessionUtils().currentUser.key
+                    ..remarkId = widget.value.remarkId
+                    ..remark = ""
+                    ..billId = widget.value.id
+                    ..createTimestamp = checkTime
+                    ..updateTimestamp = checkTime
+                    ..updateTime =
+                        DateTime.fromMillisecondsSinceEpoch(checkTime)
+                            .toString()
+                    ..createTime =
+                        DateTime.fromMillisecondsSinceEpoch(checkTime)
+                            .toString()
+                    ..createTime =
+                        DateTime.fromMillisecondsSinceEpoch(checkTime)
+                            .toString();
 
-                  HabitRecord record = HabitRecord(
-                    habitId: widget.habitId,
-                    time: checkTime,
-                    content: '',
-                  );
-
-                  BlocProvider.of<RecordBloc>(context).add(RecordAdd(record));
-                  listKey.currentState.insertItem(0,
-                      duration: const Duration(milliseconds: 500));
-
-                  scrollController.animateTo(0,
-                      duration: Duration(milliseconds: 500),
-                      curve: Curves.fastOutSlowIn);
+                  BlocProvider.of<RecordBloc>(context)
+                      .add(RecordAdd(remarkBean, listKey, scrollController));
                 },
                 backgroundColor: AppTheme.appTheme.grandientColorEnd(),
                 child: SvgPicture.asset(
@@ -132,14 +150,39 @@ class _HabitCheckViewState extends State<HabitCheckView> {
               ),
             );
           }
-          return CircularProgressIndicator();
+          return Container(
+            alignment: Alignment.center,
+            child: CircularProgressIndicator(),
+          );
         },
       ),
     );
   }
 
-  Widget getCheckItemView(
-      BuildContext context, HabitRecord record, Animation<dynamic> animation) {
+  CategoryItem getCategoryItem() {
+    var result = CategoryItem("", "", 0);
+    if (widget.value.type == 1) {
+      var indexWhere = ApiDio()
+          .apiService
+          .expenList
+          .indexWhere((item) => item.name == widget.value.categoryImage);
+      if (indexWhere >= 0) {
+        result = ApiDio().apiService.expenList[indexWhere];
+      }
+    } else {
+      var indexWhere = ApiDio()
+          .apiService
+          .incomeList
+          .indexWhere((item) => item.name == widget.value.categoryImage);
+      if (indexWhere >= 0) {
+        result = ApiDio().apiService.incomeList[indexWhere];
+      }
+    }
+    return result;
+  }
+
+  Widget getCheckItemView(BuildContext context, List<RemarkBean> remarks,
+      RemarkBean record, Animation<dynamic> animation) {
     return SizeTransition(
       sizeFactor:
           CurvedAnimation(parent: animation, curve: Curves.fastOutSlowIn),
@@ -158,8 +201,8 @@ class _HabitCheckViewState extends State<HabitCheckView> {
         ),
         alignment: TimelineAlign.manual,
         lineXY: 0.1,
-        isFirst: habitRecords.indexOf(record) == 0,
-        isLast: habitRecords.indexOf(record) == habitRecords.length - 1,
+        isFirst: remarks.indexOf(record) == 0,
+        isLast: remarks.indexOf(record) == remarks.length - 1,
         endChild: SlideTransition(
           position: Tween<Offset>(
             begin: const Offset(1, 0),
@@ -175,7 +218,7 @@ class _HabitCheckViewState extends State<HabitCheckView> {
               secondaryActions: [
                 GestureDetector(
                   onTap: () async {
-                    removeItem(context, record);
+                    removeItem(context, remarks, record);
                   },
                   child: Container(
                     alignment: Alignment.center,
@@ -214,7 +257,7 @@ class _HabitCheckViewState extends State<HabitCheckView> {
                       Container(
                         margin: EdgeInsets.only(left: 16, top: 16),
                         child: Text(
-                          '${DateUtil.parseHourAndMinAndSecond(record.time)}',
+                          '${DateUtil.parseHourAndMinAndSecond(record.updateTimestamp)}',
                           style: AppTheme.appTheme.numHeadline1(
                               fontWeight: FontWeight.bold, fontSize: 18),
                         ),
@@ -222,7 +265,7 @@ class _HabitCheckViewState extends State<HabitCheckView> {
                       Container(
                         margin: EdgeInsets.only(left: 24),
                         child: Text(
-                          '${DateUtil.parseYearAndMonthAndDay(record.time)}',
+                          '${DateUtil.parseYearAndMonthAndDay(record.updateTimestamp)}',
                           style: AppTheme.appTheme.numHeadline2(
                               fontWeight: FontWeight.bold, fontSize: 16),
                         ),
@@ -245,8 +288,9 @@ class _HabitCheckViewState extends State<HabitCheckView> {
                           width: double.infinity,
                           constraints: BoxConstraints(minHeight: 60),
                           child: Text(
-                            '${record.content.length == 0 ? '记录些什么...' : record.content}',
-                            style: record.content.length == 0
+                            '${record.remark == null || record.remark.length == 0 ? '记录些什么...' : record.remark}',
+                            style: record.remark == null ||
+                                    record.remark.length == 0
                                 ? AppTheme.appTheme.headline2(
                                     fontSize: 16, fontWeight: FontWeight.w500)
                                 : AppTheme.appTheme.headline1(
@@ -266,18 +310,19 @@ class _HabitCheckViewState extends State<HabitCheckView> {
     );
   }
 
-  void removeItem(BuildContext context, HabitRecord record) async {
-    BlocProvider.of<RecordBloc>(context)
-        .add(RecordDelete(widget.habitId, record.time));
+  void removeItem(BuildContext context, List<RemarkBean> remarks,
+      RemarkBean remarkBean) async {
+    remarkBean.isDelete = 1;
+    BlocProvider.of<RecordBloc>(context).add(RecordDelete(remarkBean));
 
-    int index = habitRecords.indexOf(record);
-    listKey.currentState.removeItem(
-        index, (_, animation) => getCheckItemView(_, record, animation),
+    int index = remarks.indexOf(remarkBean);
+    listKey.currentState.removeItem(index,
+        (_, animation) => getCheckItemView(_, remarks, remarkBean, animation),
         duration: const Duration(milliseconds: 500));
   }
 
-  void editNote(BuildContext context, HabitRecord record) async {
-    Mutable<String> content = Mutable(record.content);
+  void editNote(BuildContext context, RemarkBean remarkBean) async {
+    Mutable<String> content = Mutable(remarkBean.remark);
     await Navigator.of(context).push(PageRouteBuilder(
         opaque: false,
         pageBuilder: (context, ani1, ani2) {
@@ -300,7 +345,7 @@ class _HabitCheckViewState extends State<HabitCheckView> {
             ),
           );
         }));
-    BlocProvider.of<RecordBloc>(context).add(RecordUpdate(record.copyWith(
-        habitId: record.habitId, time: record.time, content: content.value)));
+    remarkBean.remark = content.value;
+    BlocProvider.of<RecordBloc>(context).add(RecordUpdate(remarkBean));
   }
 }

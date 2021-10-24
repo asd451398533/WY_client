@@ -37,64 +37,71 @@ class _HabitProgressScreenState extends State<HabitProgressScreen>
     SystemUtil.changeStateBarMode(
         AppTheme.appTheme.isDark() ? Brightness.light : Brightness.dark);
     return Container(
-      color: AppTheme.appTheme.containerBackgroundColor(),
-      child: BlocBuilder<HabitsBloc, HabitsState>(builder: (context, state) {
-        if (state is HabitsLoadInProgress) {
-          return CupertinoActivityIndicator();
-        }
-        if (state is HabitsLodeFailure) {
-          return Container();
-        }
-        List<Habit> _habits = (state as HabitLoadSuccess).habits;
-        int dayPeriodHabitCount = _habits
-            .where((element) => element.period == HabitPeriod.day)
-            .length;
-        int weekPeriodHabitCount = _habits
-            .where((element) => element.period == HabitPeriod.week)
-            .length;
-        int monthPeriodHabitCount = _habits
-            .where((element) => element.period == HabitPeriod.month)
-            .length;
-
-        return ListView(
-          physics: ClampingScrollPhysics(),
-          padding: EdgeInsets.only(
-              top: 0, bottom: MediaQuery.of(context).padding.bottom),
-          children: [
-            WeekMonthChart(
-              habits: _habits,
-            ),
-            TotalCheckAndDaysView(
-              habits: _habits,
-            ),
-            dayPeriodHabitCount > 0
-                ? ProgressRateView(
-                    allHabits: _habits,
-                    period: HabitPeriod.day,
-                  )
-                : SizedBox(),
-            weekPeriodHabitCount > 0
-                ? ProgressRateView(
-                    allHabits: _habits,
-                    period: HabitPeriod.week,
-                  )
-                : SizedBox(),
-            monthPeriodHabitCount > 0
-                ? ProgressRateView(
-                    allHabits: _habits,
-                    period: HabitPeriod.month,
-                  )
-                : SizedBox(),
-            MostChecksView(
-              habits: _habits,
-            ),
-            MostStreaksView(
-              habits: _habits,
-            ),
-          ],
-        );
-      }),
+      alignment: Alignment.center,
+      child: Text(
+        "施工中",
+        style: AppTheme.appTheme.headline1(fontSize: 16),
+      ),
     );
+    // return Container(
+    //   color: AppTheme.appTheme.containerBackgroundColor(),
+    //   child: BlocBuilder<HabitsBloc, HabitsState>(builder: (context, state) {
+    //     if (state is HabitsLoadInProgress) {
+    //       return CupertinoActivityIndicator();
+    //     }
+    //     if (state is HabitsLodeFailure) {
+    //       return Container();
+    //     }
+    //     List<Habit> _habits = (state as HabitLoadSuccess).habits;
+    //     int dayPeriodHabitCount = _habits
+    //         .where((element) => element.period == HabitPeriod.day)
+    //         .length;
+    //     int weekPeriodHabitCount = _habits
+    //         .where((element) => element.period == HabitPeriod.week)
+    //         .length;
+    //     int monthPeriodHabitCount = _habits
+    //         .where((element) => element.period == HabitPeriod.month)
+    //         .length;
+    //
+    //     return ListView(
+    //       physics: ClampingScrollPhysics(),
+    //       padding: EdgeInsets.only(
+    //           top: 0, bottom: MediaQuery.of(context).padding.bottom),
+    //       children: [
+    //         WeekMonthChart(
+    //           habits: _habits,
+    //         ),
+    //         TotalCheckAndDaysView(
+    //           habits: _habits,
+    //         ),
+    //         dayPeriodHabitCount > 0
+    //             ? ProgressRateView(
+    //                 allHabits: _habits,
+    //                 period: HabitPeriod.day,
+    //               )
+    //             : SizedBox(),
+    //         weekPeriodHabitCount > 0
+    //             ? ProgressRateView(
+    //                 allHabits: _habits,
+    //                 period: HabitPeriod.week,
+    //               )
+    //             : SizedBox(),
+    //         monthPeriodHabitCount > 0
+    //             ? ProgressRateView(
+    //                 allHabits: _habits,
+    //                 period: HabitPeriod.month,
+    //               )
+    //             : SizedBox(),
+    //         MostChecksView(
+    //           habits: _habits,
+    //         ),
+    //         MostStreaksView(
+    //           habits: _habits,
+    //         ),
+    //       ],
+    //     );
+    //   }),
+    // );
   }
 
   @override

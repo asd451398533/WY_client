@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:timefly/models/habit.dart';
 import 'package:timefly/models/habit_peroid.dart';
-import 'package:timefly/one_day/habit_check_view.dart';
 import 'package:timefly/utils/date_util.dart';
 import 'package:timefly/utils/flash_helper.dart';
 import 'package:timefly/utils/pair.dart';
@@ -90,17 +89,7 @@ class _HabitDetailCalendarViewState extends State<HabitDetailCalendarView> {
                   FlashHelper.toast(context, '不在记录周期');
                   return;
                 }
-                showFloatingModalBottomSheet(
-                    barrierColor: Colors.black87,
-                    context: context,
-                    builder: (context) {
-                      return HabitCheckView(
-                        habitId: widget.habitId,
-                        isFromDetail: true,
-                        start: DateUtil.startOfDay(day),
-                        end: DateUtil.endOfDay(day),
-                      );
-                    });
+
               },
               onDoubleTap: () {},
               child: Container(

@@ -11,6 +11,7 @@ import 'package:timefly/res/font.dart';
 import 'package:timefly/res/styles.dart';
 import 'package:timefly/utils/hex_color.dart';
 
+import '../../app_theme.dart';
 import 'base/DialogRouter.dart';
 
 Future popLoadingDialog(
@@ -36,7 +37,7 @@ class LoadingDialog extends Dialog {
       child: new Material(
 
           ///背景透明
-          color: Colors.black54,
+          color: Colors.black38,
 
           ///保证控件居中效果
           child: Stack(
@@ -70,9 +71,12 @@ class LoadingDialog extends Dialog {
           ),
           Gaps.vGap(16),
           Text(
-            "加载中",
+            text??"加载中",
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: Font.font_sp14, color: Colours.gray),
+            style: AppTheme.appTheme.headline1(
+                textColor:  Colors.white,
+                fontWeight: FontWeight.normal,
+                fontSize: 16),
             maxLines: 5,
           ),
           Gaps.vGap(30),

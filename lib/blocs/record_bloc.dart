@@ -1,10 +1,16 @@
 import 'package:bloc/bloc.dart';
+import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:timefly/blocs/habit/habit_bloc.dart';
 import 'package:timefly/blocs/habit/habit_event.dart';
 import 'package:timefly/blocs/habit/habit_state.dart';
+import 'package:timefly/bookkeep/bill_record_response.dart';
 import 'package:timefly/db/database_provider.dart';
 import 'package:timefly/models/habit.dart';
+import 'package:timefly/net/ApiService.dart';
+import 'package:timefly/net/DioInstance.dart';
 
 class RecordState extends Equatable {
   const RecordState();
@@ -14,7 +20,7 @@ class RecordState extends Equatable {
 }
 
 class RecordLoadSuccess extends RecordState {
-  final List<HabitRecord> records;
+  final List<RemarkBean> records;
 
   RecordLoadSuccess(this.records);
 
@@ -35,39 +41,38 @@ class RecordEvent extends Equatable {
 
 ///加载数据库数据事件
 class RecordLoad extends RecordEvent {
-  final String habitId;
-  final DateTime start;
-  final DateTime end;
+  final BillRecordModel model;
 
-  RecordLoad(this.habitId, this.start, this.end);
+  RecordLoad(this.model);
 
   @override
-  List<Object> get props => [habitId, start, end];
+  List<Object> get props => [model];
 }
 
 ///添加一个数据
 class RecordAdd extends RecordEvent {
-  final HabitRecord record;
+  final RemarkBean record;
+  final GlobalKey<AnimatedListState> listKey;
+  final ScrollController scrollController;
 
-  RecordAdd(this.record);
+  RecordAdd(this.record, this.listKey, this.scrollController);
 
   @override
   List<Object> get props => [record];
 }
 
 class RecordDelete extends RecordEvent {
-  final String habitId;
-  final int time;
+  final RemarkBean remarkBean;
 
-  RecordDelete(this.habitId, this.time);
+  RecordDelete(this.remarkBean);
 
   @override
-  List<Object> get props => [habitId, time];
+  List<Object> get props => [remarkBean];
 }
 
 ///更新
 class RecordUpdate extends RecordEvent {
-  final HabitRecord record;
+  final RemarkBean record;
 
   RecordUpdate(this.record);
 
@@ -76,10 +81,8 @@ class RecordUpdate extends RecordEvent {
 }
 
 class RecordBloc extends Bloc<RecordEvent, RecordState> {
-  final HabitsBloc habitsBloc;
-
   ///初始化状态为正在加载
-  RecordBloc(this.habitsBloc) : super(RecordLoadInProgress());
+  RecordBloc() : super(RecordLoadInProgress());
 
   @override
   Stream<RecordState> mapEventToState(RecordEvent event) async* {
@@ -96,30 +99,17 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
 
   Stream<RecordState> _mapRecordLoadToState(RecordLoad event) async* {
     try {
-      List<HabitRecord> records;
-      if (habitsBloc.state is HabitLoadSuccess) {
-        Habit habit = (habitsBloc.state as HabitLoadSuccess)
-            .habits
-            .firstWhere((habit) => habit.id == event.habitId);
-        records = habit.records;
+      var response = await ApiDio().getDio().get('app/getRemarkByRemarkId',
+          queryParameters: <String, dynamic>{"remarkId": event.model.remarkId},
+          options: Options(responseType: ResponseType.plain));
 
-        if (records != null && records.length > 0) {
-          if (event.start != null && event.end != null) {
-            records = records
-                .where((element) =>
-                    element.time > event.start.millisecondsSinceEpoch &&
-                    element.time < event.end.millisecondsSinceEpoch)
-                .toList();
-            records.sort((a, b) => b.time - a.time);
-          } else {
-            records.sort((a, b) => b.time - a.time);
-          }
-        }
-        yield RecordLoadSuccess(records);
-        return;
+      if (response != null &&
+          (response.statusCode >= 200 && response.statusCode < 300)) {
+        var list = await compute(getRemarks, response.toString());
+        yield RecordLoadSuccess(list);
+      } else {
+        yield RecordLoadFailure();
       }
-      records = [];
-      yield RecordLoadSuccess(records);
     } catch (_) {
       yield RecordLoadFailure();
     }
@@ -127,70 +117,100 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
 
   Stream<RecordState> _mapRecordAddToState(RecordAdd event) async* {
     try {
-      if (state is RecordLoadSuccess) {
-        final List<HabitRecord> records =
-            List.from((state as RecordLoadSuccess).records)
-              ..insert(0, event.record);
-        DatabaseProvider.db.insertHabitRecord(event.record);
-        if (habitsBloc.state is HabitLoadSuccess) {
-          Habit currentHabit = (habitsBloc.state as HabitLoadSuccess)
-              .habits
-              .firstWhere((habit) => habit.id == event.record.habitId);
-          habitsBloc.add(HabitUpdate(currentHabit.copyWith(
-              records: List.from(currentHabit.records)..add(event.record))));
+      var response = await ApiDio().getDio().post('app/addRemark',
+          data: event.record.toJson(),
+          options: Options(
+            contentType: Headers.jsonContentType,
+          ));
+      if (response != null &&
+          response.statusCode >= 200 &&
+          response.statusCode < 300) {
+        var response1 = await ApiDio().getDio().get('app/getRemarkByRemarkId',
+            queryParameters: <String, dynamic>{
+              "remarkId": event.record.remarkId
+            },
+            options: Options(responseType: ResponseType.plain));
+
+        if (response1 != null &&
+            (response1.statusCode >= 200 && response1.statusCode < 300)) {
+          var list = await compute(getRemarks, response1.toString());
+          yield RecordLoadSuccess(list);
+          event.listKey.currentState.insertItem(0,
+              duration: const Duration(milliseconds: 500));
+
+          event.scrollController.animateTo(0,
+              duration: Duration(milliseconds: 500),
+              curve: Curves.fastOutSlowIn);
+        } else {
+          yield RecordLoadFailure();
         }
-        yield RecordLoadSuccess(records);
+      } else {
+        yield RecordLoadFailure();
       }
-    } catch (e) {}
+    } catch (e) {
+      yield RecordLoadFailure();
+    }
   }
 
   Stream<RecordState> _mapRecordUpdateToState(RecordUpdate event) async* {
     try {
-      if (state is RecordLoadSuccess) {
-        final List<HabitRecord> records = (state as RecordLoadSuccess)
-            .records
-            .map((record) =>
-                record.time == event.record.time ? event.record : record)
-            .toList();
-        yield RecordLoadSuccess(records);
-        DatabaseProvider.db.updateHabitRecord(event.record);
+      var response = await ApiDio().getDio().post('app/addRemark',
+          data: event.record.toJson(),
+          options: Options(
+            contentType: Headers.jsonContentType,
+          ));
+      if (response != null &&
+          response.statusCode >= 200 &&
+          response.statusCode < 300) {
+        var response1 = await ApiDio().getDio().get('app/getRemarkByRemarkId',
+            queryParameters: <String, dynamic>{
+              "remarkId": event.record.remarkId
+            },
+            options: Options(responseType: ResponseType.plain));
 
-        if (habitsBloc.state is HabitLoadSuccess) {
-          Habit currentHabit = (habitsBloc.state as HabitLoadSuccess)
-              .habits
-              .firstWhere((habit) => habit.id == event.record.habitId);
-          List<HabitRecord> currentHabitRecords =
-              List<HabitRecord>.from(currentHabit.records);
-          for (int i = 0; i < currentHabitRecords.length; i++) {
-            if (currentHabitRecords[i].time == event.record.time) {
-              currentHabitRecords[i] = event.record;
-            }
-          }
-          habitsBloc.add(
-              HabitUpdate(currentHabit.copyWith(records: currentHabitRecords)));
+        if (response1 != null &&
+            (response1.statusCode >= 200 && response1.statusCode < 300)) {
+          var list = await compute(getRemarks, response1.toString());
+          yield RecordLoadSuccess(list);
+        } else {
+          yield RecordLoadFailure();
         }
+      } else {
+        yield RecordLoadFailure();
       }
-    } catch (e) {}
+    } catch (e) {
+      yield RecordLoadFailure();
+    }
   }
 
   Stream<RecordState> _mapRecordDeleteToState(RecordDelete event) async* {
     try {
-      if (state is RecordLoadSuccess) {
-        final List<HabitRecord> records =
-            List.from((state as RecordLoadSuccess).records)
-              ..removeWhere((record) => record.time == event.time);
-        yield RecordLoadSuccess(records);
-        DatabaseProvider.db.deleteHabitRecord(event.habitId, event.time);
+      var response = await ApiDio().getDio().post('app/addRemark',
+          data: event.remarkBean.toJson(),
+          options: Options(
+            contentType: Headers.jsonContentType,
+          ));
+      if (response != null &&
+          response.statusCode >= 200 &&
+          response.statusCode < 300) {
+        var response1 = await ApiDio().getDio().get('app/getRemarkByRemarkId',
+            queryParameters: <String, dynamic>{
+              "remarkId": event.remarkBean.remarkId
+            },
+            options: Options(responseType: ResponseType.plain));
 
-        if (habitsBloc.state is HabitLoadSuccess) {
-          Habit currentHabit = (habitsBloc.state as HabitLoadSuccess)
-              .habits
-              .firstWhere((habit) => habit.id == event.habitId);
-          habitsBloc.add(HabitUpdate(currentHabit.copyWith(
-              records: List.from(currentHabit.records)
-                ..removeWhere((record) => record.time == event.time))));
+        if (response1 != null &&
+            (response1.statusCode >= 200 && response1.statusCode < 300)) {
+          var list = await compute(getRemarks, response1.toString());
+          yield RecordLoadSuccess(list);
+        } else {
+          yield RecordLoadFailure();
         }
+      } else {
+        yield RecordLoadFailure();
       }
-    } catch (e) {}
+    } catch (e) {
+      yield RecordLoadFailure();
+    }
   }
 }

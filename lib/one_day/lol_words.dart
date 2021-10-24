@@ -9,8 +9,9 @@ class LoLWords {
 
 class LoLWordsFactory {
   static List<LoLWords> words = [
-    LoLWords('且随疾风前行，身后亦须留心。', 'Follow the wind, but watch your back.'),
-    LoLWords('哼，一个能打的都没有。', 'Who wants a piece of the champ?')
+    LoLWords('今天也是正能量的一天', 'Follow the wind, but watch your back.'),
+    LoLWords('今天也是阳光明媚的一天', 'Who wants a piece of the champ?'),
+    LoLWords('今天也是非常开心的一天', 'Who wants a piece of the champ?')
   ];
 
   static LoLWords randomWord() {

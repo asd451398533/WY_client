@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:timefly/commonModel/picker/loadingPicker.dart';
+import 'package:timefly/home_screen.dart';
 import 'package:timefly/models/user.dart';
 import 'package:timefly/net/DioInstance.dart';
 import 'package:timefly/utils/flash_helper.dart';
@@ -121,11 +123,18 @@ class _LoginPageState extends State<LoginPage>
               )),
               child: GestureDetector(
                 onTap: () {
+                  popLoadingDialog(context,false,"冲~");
                   ApiDio().apiService.getUser(name).listen((event) {
+                    dismissLoadingDialog(context);
                     SessionUtils.sharedInstance().login(event);
                     FlashHelper.toast(context, '登录成功');
-                    Navigator.of(context).pop();
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      new MaterialPageRoute(builder: (context) => new HomeScreen()),
+                          (route) => route == null,
+                    );
                   }).onError((err) {
+                    dismissLoadingDialog(context);
                     print("ERRR"+err.toString());
                     FlashHelper.toast(context, "没有找到这个名字");
                   });

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:timefly/bookkeep/bill_record_response.dart';
 import 'package:timefly/models/habit.dart';
 
 ///习惯列表状态
@@ -8,6 +9,7 @@ abstract class HabitsState extends Equatable {
   @override
   List<Object> get props => [];
 }
+
 
 ///正在加载习惯列表 显示 loading样式
 class HabitsLoadInProgress extends HabitsState {}
@@ -23,6 +25,4 @@ class HabitLoadSuccess extends HabitsState {
 }
 
 ///习惯加载失败，显示异常UI
-class HabitsLodeFailure extends HabitsState {
-
-}
+class HabitsLodeFailure extends HabitsState {}

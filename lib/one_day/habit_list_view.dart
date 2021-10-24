@@ -3,7 +3,6 @@ import 'package:timefly/app_theme.dart';
 import 'package:timefly/db/database_provider.dart';
 import 'package:timefly/models/habit.dart';
 import 'package:timefly/models/habit_peroid.dart';
-import 'package:timefly/one_day/habit_check_view.dart';
 import 'package:timefly/utils/date_util.dart';
 import 'package:timefly/utils/habit_util.dart';
 import 'package:timefly/widget/circle_progress_bar.dart';
@@ -158,17 +157,7 @@ class _HabitView extends State<HabitView> with SingleTickerProviderStateMixin {
   }
 
   _showCheckBottomSheet() async {
-    await showFloatingModalBottomSheet(
-        barrierColor: Colors.black87,
-        context: context,
-        builder: (context) {
-          return HabitCheckView(
-            habitId: widget.habit.id,
-            isFromDetail: false,
-            start: start,
-            end: end,
-          );
-        });
+
   }
 
   @override

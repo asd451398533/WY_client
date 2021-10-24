@@ -117,11 +117,12 @@ class _FluidNavBarState extends State<FluidNavBar> with TickerProviderStateMixin
     List<FluidFillIconData> icons = [
       FluidFillIcons.home,
       FluidFillIcons.window,
+      // FluidFillIcons.platform,
       FluidFillIcons.progress,
       FluidFillIcons.user
     ];
     var buttons = List<FluidNavBarButton>(4);
-    for (var i = 0; i < 4; ++i) {
+    for (var i = 0; i < icons.length; ++i) {
       buttons[i] = FluidNavBarButton(icons[i], _selectedIndex == i, () => _handlePressed(i));
     }
     return buttons;

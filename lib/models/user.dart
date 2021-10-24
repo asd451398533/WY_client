@@ -1,4 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timefly/blocs/bill/bill_bloc.dart';
+import 'package:timefly/blocs/bill/bill_event_1.dart';
 import 'package:timefly/blocs/habit/habit_bloc.dart';
 import 'package:timefly/blocs/habit/habit_event.dart';
 import 'package:timefly/db/database_provider.dart';
@@ -71,7 +73,7 @@ class SessionUtils {
   static SessionUtils _instance = SessionUtils._();
 
   User currentUser;
-  HabitsBloc habitsBloc;
+  BillBloc billBloc;
   SharedPreferences prefs;
 
   init() async {
@@ -80,8 +82,8 @@ class SessionUtils {
     print('init user -- ${currentUser?.toJson()}');
   }
 
-  void setBloc(HabitsBloc habitsBloc) {
-    this.habitsBloc = habitsBloc;
+  void setBloc(BillBloc billBloc) {
+    this.billBloc = billBloc;
   }
 
   void login(User user) async {
@@ -90,13 +92,13 @@ class SessionUtils {
     }
     currentUser = user;
     await DatabaseProvider.db.saveUser(user);
-    habitsBloc.add(HabitsLoad());
+    billBloc.add(BillLoad());
   }
 
   void logout() async {
     currentUser = null;
     await DatabaseProvider.db.deleteUser();
-    habitsBloc.add(HabitsLoad());
+    billBloc.add(BillLoad());
   }
 
   void updateName(String name) async {

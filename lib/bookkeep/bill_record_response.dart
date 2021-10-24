@@ -40,6 +40,8 @@ class RemarkBean extends Object {
   String remark;
 
   int billId;
+  /// 是否已删除 0没有 1删除
+  int isDelete;
 
   int createTimestamp;
 
@@ -58,6 +60,7 @@ class RemarkBean extends Object {
       ..userKey = json['userKey'] as String
       ..remark = json['remark'] as String
       ..billId = json['billId'] as int
+      ..isDelete = json['isDelete'] as int
       ..createTimestamp = json['createTimestamp'] as int
       ..updateTimestamp = json['updateTimestamp'] as int
       ..createTime = json['createTime'] as String
@@ -70,6 +73,7 @@ class RemarkBean extends Object {
         'userKey': userKey,
         'remark': remark,
         'billId': billId,
+        'isDelete': isDelete,
         'createTime': createTime,
         'updateTime': updateTime,
         'createTimestamp': createTimestamp,
@@ -127,7 +131,7 @@ class BillRecordModel extends Object {
         'money': money,
         'remarkId': remarkId,
         'remark': remark,
-        'categoryName': categoryImage,
+        'categoryImage': categoryImage,
         'userKey': userKey,
         'type': type,
         'isDelete': isDelete,

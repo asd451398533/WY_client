@@ -38,30 +38,13 @@ class _MineScreenState extends State<MineScreen> {
                   setState(() {});
                 },
               ),
-              HabitsTotalView(),
-              UserProView(),
-              EnterView(),
-              SizedBox(
-                height: 100,
-              ),
-              DarkModeView(
-                appThemeMode: appThemeMode,
-                appThemeColorMode: appThemeColorMode,
-                appFontMode: appFontMode,
-              ),
-              SizedBox(
-                height: 32,
-              ),
-              ThemeColorView(
-                currentColorMode: appThemeColorMode,
-                onTap: (colorMode) async {
-                  BlocProvider.of<ThemeBloc>(context).add(
-                      ThemeChangeEvent(appThemeMode, colorMode, appFontMode));
-                  SharedPreferences shared =
-                      await SharedPreferences.getInstance();
-                  shared.setString(COLOR_MODE, colorMode.toString());
-                },
-              ),
+              // HabitsTotalView(),
+              // UserProView(),
+              // EnterView(),
+              // SizedBox(
+              //   height: 100,
+              // ),
+
             ]),
             GestureDetector(
               onTap: () async {
@@ -77,32 +60,22 @@ class _MineScreenState extends State<MineScreen> {
                     top: MediaQuery.of(context).padding.top + 26),
                 height: 45,
                 child: Container(
-                    alignment: Alignment.center,
-                    width: 90,
-                    decoration: BoxDecoration(
-                        shape: BoxShape.rectangle,
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(26),
-                            bottomLeft: Radius.circular(26)),
-                        color: AppTheme.appTheme.cardBackgroundColor(),
-                        boxShadow: AppTheme.appTheme.containerBoxShadow()),
-                    child: GestureDetector(
-                      onTap: () {
-                        SessionUtils.sharedInstance().logout();
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          CupertinoPageRoute(builder: (context) {
-                            return LoginPage();
-                          }),
-                          (route) => route == null,
-                        );
-                      },
-                      child: Text(
-                        '退出',
-                        style: AppTheme.appTheme.headline1(
-                            fontWeight: FontWeight.bold, fontSize: 15),
-                      ),
-                    )),
+                  alignment: Alignment.center,
+                  width: 90,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(26),
+                          bottomLeft: Radius.circular(26)),
+                      color: AppTheme.appTheme.cardBackgroundColor(),
+                      boxShadow: AppTheme.appTheme.containerBoxShadow()),
+                  child: SvgPicture.asset(
+                    'assets/images/jiaohuan.svg',
+                    width: 20,
+                    height: 20,
+                    color: AppTheme.appTheme.normalColor(),
+                  ),
+                ),
               ),
             )
           ],
