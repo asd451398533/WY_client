@@ -8,7 +8,7 @@
   <application
     android:name="io.flutter.app.FlutterApplication"
     android:icon="@mipmap/temp"
-    android:label="Checkio"
+    android:label="Y"
     android:usesCleartextTraffic="true">
     <activity
       android:name=".MainActivity"

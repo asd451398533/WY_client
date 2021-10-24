@@ -45,7 +45,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.all(Radius.circular(16)),
                       child: Image.asset(
-                        'assets/images/user_icon.jpg',
+                        'assets/images/user_icon.png',
                         width: 130,
                         height: 130,
                         fit: BoxFit.cover,

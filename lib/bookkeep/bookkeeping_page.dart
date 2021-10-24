@@ -375,7 +375,6 @@ class _BookkeeppingState extends State<Bookkeepping>
             // 保存
             saveCallback: () {
               _record();
-              Navigator.pop(context);
             },
           ),
           MediaQuery.of(context).padding.bottom > 0

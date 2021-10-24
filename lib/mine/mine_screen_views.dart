@@ -31,7 +31,7 @@ class UserInfoView extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(16)),
             child: Image.asset(
-              'assets/images/user_icon.jpg',
+              'assets/images/user_icon.png',
               width: 100,
               height: 100,
               fit: BoxFit.cover,

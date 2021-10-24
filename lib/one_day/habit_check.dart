@@ -1,21 +1,29 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:timefly/add_habit/edit_name.dart';
 import 'package:timefly/app_theme.dart';
+import 'package:timefly/blocs/bill/bill_bloc.dart';
+import 'package:timefly/blocs/bill/bill_event_1.dart';
 import 'package:timefly/blocs/habit/habit_bloc.dart';
 import 'package:timefly/blocs/record_bloc.dart';
 import 'package:timefly/bookkeep/bill_record_response.dart';
+import 'package:timefly/bookkeep/bookkeeping_page.dart';
+import 'package:timefly/commonModel/picker/loadingPicker.dart';
 import 'package:timefly/models/habit.dart';
 import 'package:timefly/models/user.dart';
 import 'package:timefly/net/DioInstance.dart';
 import 'package:timefly/util/utils.dart';
 import 'package:timefly/utils/date_util.dart';
+import 'package:timefly/utils/flash_helper.dart';
 import 'package:timefly/utils/habit_util.dart';
 import 'package:timefly/utils/pair.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 import 'package:time/time.dart';
+
+import '../home_screen.dart';
 
 class BillMarkView extends StatefulWidget {
   final BillRecordModel value;
@@ -49,39 +57,102 @@ class _BillMarkViewState extends State<BillMarkView> {
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                        boxShadow: AppTheme.appTheme.coloredBoxShadow(),
-                        gradient: AppTheme.appTheme.containerGradient(),),
+                      boxShadow: AppTheme.appTheme.coloredBoxShadow(),
+                      gradient: AppTheme.appTheme.containerGradient(),
+                    ),
                     height: 100,
                     child: Row(
                       children: [
-                        Padding(padding:EdgeInsets.only(left: 36)
-                          ,child: Image.asset(
-                          Utils.getImagePath('category/${getCategoryItem().image}'),
-                          height: 20,
-                          width: 20,
-                          color: Colors.black,
-                        ),),
                         Padding(
-                          padding: EdgeInsets.only(left: 20),
-                          child: Text(
-                            getCategoryItem().name,
-                            style: AppTheme.appTheme
-                                .headline1(fontWeight: FontWeight.normal, fontSize: 22),
+                          padding: EdgeInsets.only(left: 16),
+                          child: Image.asset(
+                            Utils.getImagePath(
+                                'category/${getCategoryItem().image}'),
+                            height: 20,
+                            width: 20,
+                            color: Colors.black,
                           ),
                         ),
                         Padding(
                           padding: EdgeInsets.only(left: 10),
                           child: Text(
-                            "+${widget.value.money}",
-                            style: AppTheme.appTheme
-                                .headline1(
+                            getCategoryItem().name,
+                            style: AppTheme.appTheme.headline1(
                                 fontWeight: FontWeight.normal, fontSize: 22),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 5),
+                          child: Text(
+                            "${widget.value.type == 1 ? "-" : "+"}${widget.value.money}",
+                            style: AppTheme.appTheme.headline1(
+                                fontWeight: FontWeight.normal, fontSize: 22),
+                          ),
+                        ),
+                        Expanded(child: Container()),
+                        GestureDetector(
+                          onTap: () async {
+                            Navigator.pop(context);
+                            Navigator.of(context)
+                                .push(CupertinoPageRoute(builder: (context) {
+                              return Bookkeepping(
+                                recordModel: widget.value,
+                              );
+                            }));
+                            // Navigator.pushAndRemoveUntil(
+                            //   context,
+                            //   new MaterialPageRoute(
+                            //       builder: (context) => Bookkeepping(
+                            //             recordModel: widget.value,
+                            //           )),
+                            //   (route) => route == null,
+                            // );
+                          },
+                          child: Container(
+                            width: 60,
+                            height: 30,
+                            alignment: Alignment.center,
+                            color: AppTheme.appTheme.containerBackgroundColor(),
+                            child: Text(
+                              "编辑",
+                              style: AppTheme.appTheme.headline1(fontSize: 16),
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () async {
+                            widget.value.isDelete = 1;
+                            popLoadingDialog(context, false, "删除中");
+                            ApiDio()
+                                .apiService
+                                .addBill(widget.value)
+                                .listen((event) {
+                              BlocProvider.of<BillBloc>(appContext)
+                                  .add(BillLoad());
+                              Navigator.pop(context);
+                              Navigator.pop(context);
+                            }).onError((e) {
+                              Navigator.pop(context);
+                              FlashHelper.toast(context, '删除失败');
+                            });
+                          },
+                          child: Container(
+                            width: 60,
+                            height: 30,
+                            alignment: Alignment.center,
+                            color: AppTheme.appTheme.containerBackgroundColor(),
+                            child: Text(
+                              "删除",
+                              style: AppTheme.appTheme.headline1(fontSize: 16),
+                            ),
                           ),
                         ),
                         Expanded(child: Container()),
                         Container(
                           width: 50,
-                          margin: EdgeInsets.only(right: 16, top: 16),
+                          margin: EdgeInsets.only(
+                            right: 16,
+                          ),
                           child: GestureDetector(
                             onTap: () {
                               Navigator.of(context).pop();

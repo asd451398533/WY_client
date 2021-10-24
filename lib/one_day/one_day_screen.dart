@@ -71,11 +71,11 @@ class _OneDayScreenState extends State<OneDayScreen>
                     case BillsListData.typeRecord:
                       widget = RemarkOneView(
                           animation: Tween<Offset>(
-                              begin: Offset(0, 0.5), end: Offset.zero)
+                                  begin: Offset(0, 0.5), end: Offset.zero)
                               .animate(CurvedAnimation(
-                              parent: screenAnimationController,
-                              curve: Interval((1 / count) * index, 1,
-                                  curve: Curves.fastOutSlowIn))),
+                                  parent: screenAnimationController,
+                                  curve: Interval((1 / count) * index, 1,
+                                      curve: Curves.fastOutSlowIn))),
                           animationController: screenAnimationController);
                       break;
                     case BillsListData.typeHeader:
@@ -169,6 +169,7 @@ class _OneDayScreenState extends State<OneDayScreen>
     String month;
     String day;
     billToday.clear();
+    bills.sort((a, b) => b.updateTimestamp - a.updateTimestamp);
     bills.forEach((element) {
       var dateTime =
           DateTime.fromMillisecondsSinceEpoch(element.updateTimestamp);
