@@ -3,6 +3,8 @@ import 'package:timefly/blocs/bill/bill_bloc.dart';
 import 'package:timefly/blocs/bill/bill_event_1.dart';
 import 'package:timefly/blocs/habit/habit_bloc.dart';
 import 'package:timefly/blocs/habit/habit_event.dart';
+import 'package:timefly/blocs/xt/bill_bloc.dart';
+import 'package:timefly/blocs/xt/bill_event_1.dart';
 import 'package:timefly/db/database_provider.dart';
 
 class User {
@@ -74,6 +76,7 @@ class SessionUtils {
 
   User currentUser;
   BillBloc billBloc;
+  XTBloc xtBloc;
   SharedPreferences prefs;
 
   init() async {
@@ -86,6 +89,10 @@ class SessionUtils {
     this.billBloc = billBloc;
   }
 
+  void setXtBloc(XTBloc xtBloc) {
+    this.xtBloc = xtBloc;
+  }
+
   void login(User user) async {
     if (currentUser != null) {
       await DatabaseProvider.db.deleteUser();
@@ -93,12 +100,14 @@ class SessionUtils {
     currentUser = user;
     await DatabaseProvider.db.saveUser(user);
     billBloc.add(BillLoad());
+    xtBloc.add(XTLoad());
   }
 
   void logout() async {
     currentUser = null;
     await DatabaseProvider.db.deleteUser();
     billBloc.add(BillLoad());
+    xtBloc.add(XTLoad());
   }
 
   void updateName(String name) async {

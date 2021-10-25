@@ -77,6 +77,10 @@ class _XTkeeppingState extends State<XTkeepping> with TickerProviderStateMixin {
       if (widget.recordModel.categoryImage.isNotEmpty) {
         iconStr = widget.recordModel.categoryImage;
       }
+      if (widget.recordModel.foods.isNotEmpty) {
+        var split = widget.recordModel.foods.split(",");
+        foods.addAll(split);
+      }
 
       if (widget.recordModel.number != null) {
         _numberString = Utils.formatDouble(double.parse(

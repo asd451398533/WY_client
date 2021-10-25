@@ -197,7 +197,7 @@ class XTRecordBloc extends Bloc<XTRecordEvent, XTRecordState> {
       if (response != null &&
           response.statusCode >= 200 &&
           response.statusCode < 300) {
-        var response1 = await ApiDio().getDio().get('app/getRemarkByRemarkId',
+        var response1 = await ApiDio().getDio().get('app/getXTRemarkByRemarkId',
             queryParameters: <String, dynamic>{
               "remarkId": event.remarkBean.remarkId
             },

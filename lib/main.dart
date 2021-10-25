@@ -46,6 +46,8 @@ class MyApp extends StatelessWidget {
             builder: (context, themeState) {
               SessionUtils.sharedInstance()
                   .setBloc(BlocProvider.of<BillBloc>(context));
+              SessionUtils.sharedInstance()
+                  .setXtBloc(BlocProvider.of<XTBloc>(context));
               return MaterialApp(
                 title: 'WY',
                 debugShowCheckedModeBanner: false,

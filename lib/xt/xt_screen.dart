@@ -37,6 +37,8 @@ class _XTState extends State<XTScreen> with TickerProviderStateMixin {
   AnimationController screenAnimationController;
   final SlidableController slidableController = SlidableController();
 
+  Map<String, List<XT>> dayMap = {};
+
   @override
   void initState() {
     screenAnimationController =
@@ -106,6 +108,7 @@ class _XTState extends State<XTScreen> with TickerProviderStateMixin {
                         isEnd: index == count - 1,
                         billsListData: myBill,
                         value: myBill.value,
+                        dayMap: dayMap,
                       );
                       //   widget = OneDayTipsView(
                       //     animation:
@@ -169,6 +172,7 @@ class _XTState extends State<XTScreen> with TickerProviderStateMixin {
 
     String month;
     String day;
+    dayMap.clear();
     bills.forEach((element) {
       var dateTime =
           DateTime.fromMillisecondsSinceEpoch(element.updateTimestamp);
@@ -189,6 +193,12 @@ class _XTState extends State<XTScreen> with TickerProviderStateMixin {
         datas.add(BillsListData(type: BillsListData.typeDay, value: element));
       }
       datas.add(BillsListData(type: BillsListData.typeItem, value: element));
+      var xtToday = DateUtil.getXTToday(element);
+      if (dayMap[xtToday] == null) {
+        dayMap[xtToday] = []..add(element);
+      } else {
+        dayMap[xtToday].add(element);
+      }
     });
     return datas;
   }

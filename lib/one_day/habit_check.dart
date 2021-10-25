@@ -414,7 +414,11 @@ class _BillMarkViewState extends State<BillMarkView> {
             ),
           );
         }));
-    remarkBean.remark = content.value;
-    BlocProvider.of<RecordBloc>(context).add(RecordUpdate(remarkBean));
+    if (content.value != null &&
+        content.value.isNotEmpty &&
+        content.value != remarkBean.remark) {
+      remarkBean.remark = content.value;
+      BlocProvider.of<RecordBloc>(context).add(RecordUpdate(remarkBean));
+    }
   }
 }

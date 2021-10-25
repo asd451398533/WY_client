@@ -1,6 +1,4 @@
 import 'dart:math';
-import 'package:alarm_plugin/alarm_event.dart';
-import 'package:alarm_plugin/alarm_plugin.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -512,18 +510,18 @@ class _HabitEditPageState extends State<HabitEditPage>
     if (remindTimes == null || remindTimes.length == 0) {
       return;
     }
-    List<AlarmEvent> events = remindTimes.map((remindTime) {
-      AlarmEvent event = AlarmEvent();
-      event.title = _name;
-      event.description = _name;
-      event.hour = remindTime.hour;
-      event.minutes = remindTime.minute;
-      event.days = _completeDays();
-      return event;
-    }).toList();
-    for (var value in events) {
-      await AlarmPlugin.add2Alarm(value);
-    }
+    // List<AlarmEvent> events = remindTimes.map((remindTime) {
+    //   AlarmEvent event = AlarmEvent();
+    //   event.title = _name;
+    //   event.description = _name;
+    //   event.hour = remindTime.hour;
+    //   event.minutes = remindTime.minute;
+    //   event.days = _completeDays();
+    //   return event;
+    // }).toList();
+    // for (var value in events) {
+    //   await AlarmPlugin.add2Alarm(value);
+    // }
   }
 
   List<int> _completeDays() {

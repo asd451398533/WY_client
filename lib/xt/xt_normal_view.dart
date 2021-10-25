@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:timefly/add_habit/habit_edit_page.dart';
 import 'package:timefly/bean/xt.dart';
+import 'package:timefly/biao/MapView.dart';
 import 'package:timefly/bookkeep/bill_record_response.dart';
 import 'package:timefly/bookkeep/bookkeeping_page.dart';
 import 'package:timefly/login/login_page.dart';
@@ -14,6 +15,7 @@ import 'package:timefly/one_day/lol_words.dart';
 import 'package:timefly/res/styles.dart';
 import 'package:timefly/util/utils.dart';
 import 'package:timefly/utils/date_util.dart';
+import 'package:timefly/widget/clip/jump_util.dart';
 import 'package:timefly/widget/float_modal.dart';
 import 'package:timefly/xt/xt_bookkeeping_page.dart';
 import 'package:timefly/xt/xt_check.dart';
@@ -164,6 +166,7 @@ class XTView extends StatelessWidget {
   final BillsListData billsListData;
   final XT value;
   final double mh = 80.0;
+  final Map<String, List<XT>> dayMap;
 
   const XTView(
       {Key key,
@@ -173,7 +176,8 @@ class XTView extends StatelessWidget {
       this.isFirst,
       this.isEnd,
       this.billsListData,
-      this.value})
+      this.value,
+      this.dayMap})
       : super(key: key);
 
   @override
@@ -206,7 +210,7 @@ class XTView extends StatelessWidget {
                 alignment: TimelineAlign.center,
                 isFirst: isFirst,
                 isLast: isEnd,
-                endChild: getEndChild(),
+                endChild: getEndChild(context),
                 startChild: getStartChild(),
               ),
             ));
@@ -332,7 +336,7 @@ class XTView extends StatelessWidget {
     );
   }
 
-  Widget getEndChild() {
+  Widget getEndChild(BuildContext context) {
     if (billsListData.type == BillsListData.typeMonth) {
       return Container(
         height: 30,
@@ -341,36 +345,46 @@ class XTView extends StatelessWidget {
       return Container(
         height: 30,
         alignment: Alignment.centerLeft,
-        child: Container(
-          width: 70,
-          margin: EdgeInsets.only(left: 10, top: 5, bottom: 5),
-          decoration: BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                    color: AppTheme.appTheme
-                        .cardBackgroundColor()
-                        .withOpacity(0.3),
-                    offset: Offset(5, 5),
-                    blurRadius: 16)
+        child: GestureDetector(
+          onTap: () {
+            JumpUtil.jumpTo(
+                context,
+                LineChartSample1(
+                  dayMap: dayMap,
+                  xt: value,
+                ));
+          },
+          child: Container(
+            width: 70,
+            margin: EdgeInsets.only(left: 10, top: 5, bottom: 5),
+            decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                      color: AppTheme.appTheme
+                          .cardBackgroundColor()
+                          .withOpacity(0.3),
+                      offset: Offset(5, 5),
+                      blurRadius: 16)
+                ],
+                color: AppTheme.appTheme.cardBackgroundColor(),
+                borderRadius: BorderRadius.circular(10)),
+            child: Row(
+              children: [
+                Expanded(child: Container()),
+                Text(
+                  "统计",
+                  style: AppTheme.appTheme
+                      .headline1(fontWeight: FontWeight.normal, fontSize: 12),
+                ),
+                Expanded(child: Container()),
+                Icon(
+                  Icons.read_more,
+                  color: AppTheme.appTheme.normalColor(),
+                  size: 15,
+                ),
+                Expanded(child: Container()),
               ],
-              color: AppTheme.appTheme.cardBackgroundColor(),
-              borderRadius: BorderRadius.circular(10)),
-          child: Row(
-            children: [
-              Expanded(child: Container()),
-              Text(
-                "统计",
-                style: AppTheme.appTheme
-                    .headline1(fontWeight: FontWeight.normal, fontSize: 12),
-              ),
-              Expanded(child: Container()),
-              Icon(
-                Icons.read_more,
-                color: AppTheme.appTheme.normalColor(),
-                size: 15,
-              ),
-              Expanded(child: Container()),
-            ],
+            ),
           ),
         ),
       );

@@ -53,22 +53,22 @@ android {
          }*/
     }
 
-//    signingConfigs {
-//        release {
-//            storeFile file('E:/lsy/lsy.jks')
-//            storePassword 'asd123'
-//            keyAlias 'key0'
-//            keyPassword 'asd123'
-//        }
-//    }
+    signingConfigs {
+        release {
+            storeFile file('lsy.jks')
+            storePassword 'asd123'
+            keyAlias 'key0'
+            keyPassword 'asd123'
+        }
+    }
 
     buildTypes {
         debug {
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
         }
-//        release {
-//            signingConfig signingConfigs.release
-//        }
+        release {
+            signingConfig signingConfigs.release
+        }
     }
     ndkVersion '22.1.7171670'
 }

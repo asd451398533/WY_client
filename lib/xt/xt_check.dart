@@ -457,7 +457,11 @@ class _XTMarkViewState extends State<XTMarkView> {
             ),
           );
         }));
-    remarkBean.remark = content.value;
-    BlocProvider.of<XTRecordBloc>(context).add(XTRecordUpdate(remarkBean));
+    if (content.value != null &&
+        content.value.isNotEmpty &&
+        remarkBean.remark != content.value) {
+      remarkBean.remark = content.value;
+      BlocProvider.of<XTRecordBloc>(context).add(XTRecordUpdate(remarkBean));
+    }
   }
 }
