@@ -1,4 +1,5 @@
 import 'package:time/time.dart';
+import 'package:timefly/bean/xt.dart';
 import 'package:timefly/bookkeep/bill_record_response.dart';
 import 'package:timefly/models/habit.dart';
 import 'package:timefly/utils/pair.dart';
@@ -23,6 +24,12 @@ class DateUtil {
   }
 
   static String getBillToday(BillRecordModel value) {
+    var dateTime = DateTime.fromMillisecondsSinceEpoch(value.updateTimestamp);
+    var nowDay = "${dateTime.year}-${dateTime.month}-${dateTime.day}";
+    return nowDay;
+  }
+
+  static String getXTToday(XT value) {
     var dateTime = DateTime.fromMillisecondsSinceEpoch(value.updateTimestamp);
     var nowDay = "${dateTime.year}-${dateTime.month}-${dateTime.day}";
     return nowDay;

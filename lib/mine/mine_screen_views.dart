@@ -30,11 +30,16 @@ class UserInfoView extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(16)),
-            child: Image.asset(
-              'assets/images/user_icon.png',
-              width: 100,
-              height: 100,
-              fit: BoxFit.cover,
+            child:
+                // Image.asset(
+                //   'assets/images/user_icon.png',
+                //   width: 100,
+                //   height: 100,
+                //   fit: BoxFit.cover,
+                // ),
+                //
+                Icon(
+              Icons.sentiment_neutral,
             ),
           ),
           SizedBox(
@@ -57,7 +62,6 @@ class UserInfoView extends StatelessWidget {
               //   callback();
               // }
               // popLoadingDialog(context, true, "加载中");
-
             },
             child: Text(
               '${(user == null || user.name == null || user.name.isEmpty) ? '编辑名字' : user.name}',

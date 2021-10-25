@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 import 'package:timefly/add_habit/edit_name.dart';
+import 'package:timefly/utils/hex_color.dart';
 import 'package:timefly/utils/pair.dart';
 import '../app_theme.dart';
 import 'colours.dart';
@@ -93,6 +95,45 @@ class Gaps {
           );
         }));
     result(content.value);
+  }
+
+  static Widget loading() {
+    return Container(
+      color: AppTheme.appTheme.containerBackgroundColor(),
+      alignment: Alignment.center,
+      child: Container(
+        width: 50,
+        height: 50,
+        child: loadingCenter(),
+      ),
+    );
+  }
+
+  static Widget loadingCenter() {
+    final customWidth08 =
+        CustomSliderWidths(trackWidth: 1, progressBarWidth: 5, shadowWidth: 50);
+    final customColors08 = CustomSliderColors(
+        dotColor: Colors.white.withOpacity(0.5),
+        trackColor: HexColor('#7EFFFF').withOpacity(0.1),
+        progressBarColors: [
+          HexColor('#3586FC').withOpacity(0.1),
+          HexColor('#FF8876').withOpacity(0.25),
+          HexColor('#FAFF76').withOpacity(0.5)
+        ],
+        shadowColor: HexColor('#133657'),
+        shadowMaxOpacity: 0.02);
+    final CircularSliderAppearance appearance08 = CircularSliderAppearance(
+        customWidths: customWidth08,
+        customColors: customColors08,
+        size: 230.0,
+        spinnerMode: true,
+        spinnerDuration: 1000);
+    final viewModel08 = SleekCircularSlider(
+      onChangeStart: (double value) {},
+      onChangeEnd: (double value) {},
+      appearance: appearance08,
+    );
+    return viewModel08;
   }
 
   static Widget line = Container(height: 0.6, color: Colours.line);

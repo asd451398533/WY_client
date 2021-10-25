@@ -43,7 +43,7 @@ class _EditFiledViewState extends State<EditFiledView> {
                 initValue: widget.content.value,
                 hintText: widget.hintText == null || widget.hintText.isEmpty
                     ? "记录些什么 ..."
-                    : "",
+                    : widget.hintText,
                 hintTextStyle: AppTheme.appTheme
                     .hint(fontWeight: FontWeight.normal, fontSize: 16),
                 textStyle: AppTheme.appTheme

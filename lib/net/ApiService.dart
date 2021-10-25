@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:timefly/bean/xt.dart';
 import 'package:timefly/bookkeep/bill_record_response.dart';
 import 'package:timefly/db/database_provider.dart';
 import 'dart:convert';
@@ -34,6 +35,20 @@ class ApiService {
   Observable<SimpleResponce> addBill(BillRecordModel billRecordModel) {
     return Observable.fromFuture(
             dio.post('app/addBill', data: billRecordModel.toJson()))
+        .flatMap((value) {
+      if (value != null &&
+          (value.statusCode >= 200 && value.statusCode < 300)) {
+        return Observable.fromFuture(
+            compute(paresSimpleResponce, value.toString()));
+      } else {
+        return Observable.fromFuture(null);
+      }
+    });
+  }
+
+  Observable<SimpleResponce> addXT(XT billRecordModel) {
+    return Observable.fromFuture(
+            dio.post('app/addXT', data: billRecordModel.toJson()))
         .flatMap((value) {
       if (value != null &&
           (value.statusCode >= 200 && value.statusCode < 300)) {
@@ -119,9 +134,22 @@ List<BillRecordModel> getBills(String value) {
   return cardbeanList;
 }
 
-List<RemarkBean> getRemarks(String value){
+List<XT> getXTs(String value) {
+  List responseJson = json.decode(value);
+  List<XT> cardbeanList = responseJson.map((m) => new XT.fromJson(m)).toList();
+  return cardbeanList;
+}
+
+List<RemarkBean> getRemarks(String value) {
   List responseJson = json.decode(value);
   List<RemarkBean> cardbeanList =
-  responseJson.map((m) => new RemarkBean.fromJson(m)).toList();
+      responseJson.map((m) => new RemarkBean.fromJson(m)).toList();
+  return cardbeanList;
+}
+
+List<XTRemark> getXTRemarks(String value) {
+  List responseJson = json.decode(value);
+  List<XTRemark> cardbeanList =
+      responseJson.map((m) => new XTRemark.fromJson(m)).toList();
   return cardbeanList;
 }

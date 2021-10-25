@@ -5,8 +5,7 @@ import 'package:timefly/app_theme.dart';
 import 'package:timefly/res/colours.dart';
 import 'package:timefly/res/styles.dart';
 import 'package:timefly/util/utils.dart';
-
-import 'highlight_well.dart';
+import 'package:timefly/widget/highlight_well.dart';
 
 /// 数字回调
 typedef void MyNumberCallback(String number);
@@ -26,8 +25,8 @@ typedef void EqualCallback();
 /// 保存
 typedef void SaveCallback();
 
-class MyKeyBoard extends StatefulWidget {
-  const MyKeyBoard(
+class XTBoard extends StatefulWidget {
+  const XTBoard(
       {Key key,
       this.numberCallback,
       this.deleteCallback,
@@ -46,10 +45,10 @@ class MyKeyBoard extends StatefulWidget {
   final bool isAdd;
 
   @override
-  State<StatefulWidget> createState() => _MyKeyBoardState();
+  State<StatefulWidget> createState() => _XTBoardState();
 }
 
-class _MyKeyBoardState extends State<MyKeyBoard> {
+class _XTBoardState extends State<XTBoard> {
   final double _spaceing = 0.3;
   final double _runSpacing = 0.3;
 
@@ -158,18 +157,15 @@ class _MyKeyBoardState extends State<MyKeyBoard> {
         );
         break;
       case 7:
-        return Image.asset(
-          Utils.getImagePath('icons/add_icon'),
-          width: parentWidth * 0.3,
+        return Icon(
+          Icons.sentiment_very_satisfied,
           color: AppTheme.appTheme.normalColor(),
         );
         break;
       case 11:
-        return Text(
-          '继续',
-          style: AppTheme.appTheme.headline1(
-              fontWeight: FontWeight.normal,
-              fontSize: ScreenUtil.getInstance().setSp(30)),
+        return Icon(
+          Icons.sentiment_satisfied,
+          color: AppTheme.appTheme.normalColor(),
         );
         break;
       case 12:

@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:timefly/bean/xt.dart';
 import 'package:timefly/blocs/habit/habit_bloc.dart';
 import 'package:timefly/blocs/habit/habit_event.dart';
 import 'package:timefly/blocs/habit/habit_state.dart';
@@ -12,113 +13,113 @@ import 'package:timefly/models/habit.dart';
 import 'package:timefly/net/ApiService.dart';
 import 'package:timefly/net/DioInstance.dart';
 
-class RecordState extends Equatable {
-  const RecordState();
+class XTRecordState extends Equatable {
+  const XTRecordState();
 
   @override
   List<Object> get props => [];
 }
 
-class RecordLoadSuccess extends RecordState {
-  final List<RemarkBean> records;
+class XTRecordLoadSuccess extends XTRecordState {
+  final List<XTRemark> records;
 
-  RecordLoadSuccess(this.records);
+  XTRecordLoadSuccess(this.records);
 
   @override
   List<Object> get props => [records];
 }
 
-class RecordLoadInProgress extends RecordState {}
+class XTRecordLoadInProgress extends XTRecordState {}
 
-class RecordLoadFailure extends RecordState {}
+class XTRecordLoadFailure extends XTRecordState {}
 
-class RecordEvent extends Equatable {
-  const RecordEvent();
+class XTRecordEvent extends Equatable {
+  const XTRecordEvent();
 
   @override
   List<Object> get props => [];
 }
 
 ///加载数据库数据事件
-class RecordLoad extends RecordEvent {
-  final BillRecordModel model;
+class XTRecordLoad extends XTRecordEvent {
+  final XT model;
 
-  RecordLoad(this.model);
+  XTRecordLoad(this.model);
 
   @override
   List<Object> get props => [model];
 }
 
 ///添加一个数据
-class RecordAdd extends RecordEvent {
-  final RemarkBean record;
+class XTRecordAdd extends XTRecordEvent {
+  final XTRemark record;
   final GlobalKey<AnimatedListState> listKey;
   final ScrollController scrollController;
 
-  RecordAdd(this.record, this.listKey, this.scrollController);
+  XTRecordAdd(this.record, this.listKey, this.scrollController);
 
   @override
   List<Object> get props => [record];
 }
 
-class RecordDelete extends RecordEvent {
-  final RemarkBean remarkBean;
+class XTRecordDelete extends XTRecordEvent {
+  final XTRemark remarkBean;
 
-  RecordDelete(this.remarkBean);
+  XTRecordDelete(this.remarkBean);
 
   @override
   List<Object> get props => [remarkBean];
 }
 
 ///更新
-class RecordUpdate extends RecordEvent {
-  final RemarkBean record;
+class XTRecordUpdate extends XTRecordEvent {
+  final XTRemark record;
 
-  RecordUpdate(this.record);
+  XTRecordUpdate(this.record);
 
   @override
   List<Object> get props => [record];
 }
 
-class RecordBloc extends Bloc<RecordEvent, RecordState> {
+class XTRecordBloc extends Bloc<XTRecordEvent, XTRecordState> {
   ///初始化状态为正在加载
-  RecordBloc() : super(RecordLoadInProgress());
+  XTRecordBloc() : super(XTRecordLoadInProgress());
 
   @override
-  Stream<RecordState> mapEventToState(RecordEvent event) async* {
-    if (event is RecordLoad) {
+  Stream<XTRecordState> mapEventToState(XTRecordEvent event) async* {
+    if (event is XTRecordLoad) {
       yield* _mapRecordLoadToState(event);
-    } else if (event is RecordAdd) {
+    } else if (event is XTRecordAdd) {
       yield* _mapRecordAddToState(event);
-    } else if (event is RecordUpdate) {
+    } else if (event is XTRecordUpdate) {
       yield* _mapRecordUpdateToState(event);
-    } else if (event is RecordDelete) {
+    } else if (event is XTRecordDelete) {
       yield* _mapRecordDeleteToState(event);
     }
   }
 
-  Stream<RecordState> _mapRecordLoadToState(RecordLoad event) async* {
+  Stream<XTRecordState> _mapRecordLoadToState(XTRecordLoad event) async* {
     try {
-      var response = await ApiDio().getDio().get('app/getRemarkByRemarkId',
+      var response = await ApiDio().getDio().get('app/getXTRemarkByRemarkId',
           queryParameters: <String, dynamic>{"remarkId": event.model.remarkId},
           options: Options(responseType: ResponseType.plain));
 
       if (response != null &&
           (response.statusCode >= 200 && response.statusCode < 300)) {
-        var list = await compute(getRemarks, response.toString());
+        var list = await compute(getXTRemarks, response.toString());
         list.sort((a, b) => b.updateTimestamp - a.updateTimestamp);
-        yield RecordLoadSuccess(list);
+        yield XTRecordLoadSuccess(list);
       } else {
-        yield RecordLoadFailure();
+        yield XTRecordLoadFailure();
       }
     } catch (_) {
-      yield RecordLoadFailure();
+      yield XTRecordLoadFailure();
     }
   }
 
-  Stream<RecordState> _mapRecordAddToState(RecordAdd event) async* {
+  Stream<XTRecordState> _mapRecordAddToState(XTRecordAdd event) async* {
     try {
-      var response = await ApiDio().getDio().post('app/addRemark',
+      var response = await ApiDio().getDio().post('app/addXTRemark',
           data: event.record.toJson(),
           options: Options(
             contentType: Headers.jsonContentType,
@@ -126,7 +127,7 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
       if (response != null &&
           response.statusCode >= 200 &&
           response.statusCode < 300) {
-        var response1 = await ApiDio().getDio().get('app/getRemarkByRemarkId',
+        var response1 = await ApiDio().getDio().get('app/getXTRemarkByRemarkId',
             queryParameters: <String, dynamic>{
               "remarkId": event.record.remarkId
             },
@@ -134,8 +135,9 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
 
         if (response1 != null &&
             (response1.statusCode >= 200 && response1.statusCode < 300)) {
-          var list = await compute(getRemarks, response1.toString());
-          yield RecordLoadSuccess(list);
+          var list = await compute(getXTRemarks, response1.toString());
+          list.sort((a, b) => b.updateTimestamp - a.updateTimestamp);
+          yield XTRecordLoadSuccess(list);
           event.listKey.currentState
               .insertItem(0, duration: const Duration(milliseconds: 500));
 
@@ -143,19 +145,19 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
               duration: Duration(milliseconds: 500),
               curve: Curves.fastOutSlowIn);
         } else {
-          yield RecordLoadFailure();
+          yield XTRecordLoadFailure();
         }
       } else {
-        yield RecordLoadFailure();
+        yield XTRecordLoadFailure();
       }
     } catch (e) {
-      yield RecordLoadFailure();
+      yield XTRecordLoadFailure();
     }
   }
 
-  Stream<RecordState> _mapRecordUpdateToState(RecordUpdate event) async* {
+  Stream<XTRecordState> _mapRecordUpdateToState(XTRecordUpdate event) async* {
     try {
-      var response = await ApiDio().getDio().post('app/addRemark',
+      var response = await ApiDio().getDio().post('app/addXTRemark',
           data: event.record.toJson(),
           options: Options(
             contentType: Headers.jsonContentType,
@@ -163,7 +165,7 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
       if (response != null &&
           response.statusCode >= 200 &&
           response.statusCode < 300) {
-        var response1 = await ApiDio().getDio().get('app/getRemarkByRemarkId',
+        var response1 = await ApiDio().getDio().get('app/getXTRemarkByRemarkId',
             queryParameters: <String, dynamic>{
               "remarkId": event.record.remarkId
             },
@@ -171,22 +173,23 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
 
         if (response1 != null &&
             (response1.statusCode >= 200 && response1.statusCode < 300)) {
-          var list = await compute(getRemarks, response1.toString());
-          yield RecordLoadSuccess(list);
+          var list = await compute(getXTRemarks, response1.toString());
+          list.sort((a, b) => b.updateTimestamp - a.updateTimestamp);
+          yield XTRecordLoadSuccess(list);
         } else {
-          yield RecordLoadFailure();
+          yield XTRecordLoadFailure();
         }
       } else {
-        yield RecordLoadFailure();
+        yield XTRecordLoadFailure();
       }
     } catch (e) {
-      yield RecordLoadFailure();
+      yield XTRecordLoadFailure();
     }
   }
 
-  Stream<RecordState> _mapRecordDeleteToState(RecordDelete event) async* {
+  Stream<XTRecordState> _mapRecordDeleteToState(XTRecordDelete event) async* {
     try {
-      var response = await ApiDio().getDio().post('app/addRemark',
+      var response = await ApiDio().getDio().post('app/addXTRemark',
           data: event.remarkBean.toJson(),
           options: Options(
             contentType: Headers.jsonContentType,
@@ -202,16 +205,17 @@ class RecordBloc extends Bloc<RecordEvent, RecordState> {
 
         if (response1 != null &&
             (response1.statusCode >= 200 && response1.statusCode < 300)) {
-          var list = await compute(getRemarks, response1.toString());
-          yield RecordLoadSuccess(list);
+          var list = await compute(getXTRemarks, response1.toString());
+          list.sort((a, b) => b.updateTimestamp - a.updateTimestamp);
+          yield XTRecordLoadSuccess(list);
         } else {
-          yield RecordLoadFailure();
+          yield XTRecordLoadFailure();
         }
       } else {
-        yield RecordLoadFailure();
+        yield XTRecordLoadFailure();
       }
     } catch (e) {
-      yield RecordLoadFailure();
+      yield XTRecordLoadFailure();
     }
   }
 }

@@ -10,6 +10,8 @@ import 'package:timefly/blocs/habit/habit_event.dart';
 import 'package:timefly/blocs/theme/theme_bloc.dart';
 import 'package:timefly/blocs/theme/theme_event.dart';
 import 'package:timefly/blocs/theme/theme_state.dart';
+import 'package:timefly/blocs/xt/bill_bloc.dart';
+import 'package:timefly/blocs/xt/bill_event_1.dart';
 import 'package:timefly/home_screen.dart';
 import 'package:timefly/login/login_page.dart';
 import 'package:timefly/notification/notification_plugin.dart';
@@ -29,6 +31,7 @@ void main() async {
     DeviceOrientation.portraitDown
   ]).then((_) => runApp(MyApp()));
 }
+
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
@@ -37,21 +40,24 @@ class MyApp extends StatelessWidget {
       create: (context) => ThemeBloc()..add(ThemeLoadEvnet()),
       child: BlocProvider<BillBloc>(
         create: (context) => BillBloc()..add(BillLoad()),
-        child: BlocBuilder<ThemeBloc, ThemeState>(
-          builder: (context, themeState) {
-            SessionUtils.sharedInstance()
-                .setBloc(BlocProvider.of<BillBloc>(context));
-            return MaterialApp(
-              title: 'WY',
-              debugShowCheckedModeBanner: false,
-              theme: AppTheme.appTheme
-                  .themeData()
-                  .copyWith(platform: TargetPlatform.iOS),
-              home: SessionUtils().currentUser == null
-                  ? LoginPage()
-                  : HomeScreen(),
-            );
-          },
+        child: BlocProvider<XTBloc>(
+          create: (context) => XTBloc()..add(XTLoad()),
+          child: BlocBuilder<ThemeBloc, ThemeState>(
+            builder: (context, themeState) {
+              SessionUtils.sharedInstance()
+                  .setBloc(BlocProvider.of<BillBloc>(context));
+              return MaterialApp(
+                title: 'WY',
+                debugShowCheckedModeBanner: false,
+                theme: AppTheme.appTheme
+                    .themeData()
+                    .copyWith(platform: TargetPlatform.iOS),
+                home: SessionUtils().currentUser == null
+                    ? LoginPage()
+                    : HomeScreen(),
+              );
+            },
+          ),
         ),
       ),
     );

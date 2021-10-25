@@ -61,6 +61,7 @@ class BillBloc extends Bloc<BillEvent, BillState> {
       if (response != null &&
           (response.statusCode >= 200 && response.statusCode < 300)) {
         var list = await compute(getBills, response.toString());
+        list.sort((a, b) => b.updateTimestamp - a.updateTimestamp);
         yield BillLoadSuccess(list);
       } else {
         yield BillLodeFailure();

@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:timefly/app_theme.dart';
+import 'package:timefly/bean/xt.dart';
 import 'package:timefly/blocs/bill/bill_bloc.dart';
 import 'package:timefly/blocs/bill/bill_event.dart';
 import 'package:timefly/blocs/habit/habit_bloc.dart';
 import 'package:timefly/blocs/habit/habit_state.dart';
 import 'package:timefly/blocs/user_bloc.dart';
+import 'package:timefly/blocs/xt/bill_bloc.dart';
+import 'package:timefly/blocs/xt/bill_event.dart';
 import 'package:timefly/bookkeep/bill_record_response.dart';
 import 'package:timefly/models/habit.dart';
 import 'package:timefly/models/habit_list_model.dart';
@@ -15,26 +18,24 @@ import 'package:timefly/models/habit_peroid.dart';
 import 'package:timefly/net/ApiService.dart';
 import 'package:timefly/one_day/habit_list_view.dart';
 import 'package:timefly/one_day/one_day_normal_view.dart';
+import 'package:timefly/res/styles.dart';
 import 'package:timefly/utils/date_util.dart';
 import 'package:timefly/utils/habit_util.dart';
 import 'package:timefly/utils/system_util.dart';
 import 'package:timefly/widget/clip/bottom_cliper.dart';
+import 'package:timefly/xt/xt_normal_view.dart';
 
-import 'one_day_rate_view.dart';
-
-class OneDayScreen extends StatefulWidget {
+class XTScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return _OneDayScreenState();
+    return _XTState();
   }
 }
 
-class _OneDayScreenState extends State<OneDayScreen>
-    with TickerProviderStateMixin {
+class _XTState extends State<XTScreen> with TickerProviderStateMixin {
   ///整个页面动画控制器
   AnimationController screenAnimationController;
   final SlidableController slidableController = SlidableController();
-  Map billToday = <String, double>{};
 
   @override
   void initState() {
@@ -55,12 +56,12 @@ class _OneDayScreenState extends State<OneDayScreen>
     SystemUtil.changeStateBarMode(
         AppTheme.appTheme.isDark() ? Brightness.light : Brightness.dark);
     return Container(
-      child: BlocBuilder<BillBloc, BillState>(
+      child: BlocBuilder<XTBloc, XTState>(
         builder: (context, state) {
-          if (state is BillLoadInProgress) {
-            return Container();
+          if (state is XTLoadInProgress) {
+            return Gaps.loading();
           }
-          if (state is BillLoadSuccess) {
+          if (state is XTLoadSuccess) {
             var myBills = getMyBills(state.bills);
             final int count = myBills.length;
             return ListView.builder(
@@ -70,7 +71,7 @@ class _OneDayScreenState extends State<OneDayScreen>
                   Widget widget;
                   switch (myBill.type) {
                     case BillsListData.typeRecord:
-                      widget = RemarkOneView(
+                      widget = XTRemarkOneView(
                           animation: Tween<Offset>(
                                   begin: Offset(0, 0.5), end: Offset.zero)
                               .animate(CurvedAnimation(
@@ -80,7 +81,7 @@ class _OneDayScreenState extends State<OneDayScreen>
                           animationController: screenAnimationController);
                       break;
                     case BillsListData.typeHeader:
-                      widget = TimeAndWordView(
+                      widget = XTTimeAndWordView(
                           animation: Tween<Offset>(
                                   begin: Offset(0, 0.5), end: Offset.zero)
                               .animate(CurvedAnimation(
@@ -92,7 +93,7 @@ class _OneDayScreenState extends State<OneDayScreen>
                     case BillsListData.typeMonth:
                     case BillsListData.typeDay:
                     case BillsListData.typeItem:
-                      widget = BillView(
+                      widget = XTView(
                         animation:
                             Tween<Offset>(begin: Offset(1, 0), end: Offset.zero)
                                 .animate(CurvedAnimation(
@@ -105,7 +106,6 @@ class _OneDayScreenState extends State<OneDayScreen>
                         isEnd: index == count - 1,
                         billsListData: myBill,
                         value: myBill.value,
-                        billToday: billToday,
                       );
                       //   widget = OneDayTipsView(
                       //     animation:
@@ -162,14 +162,13 @@ class _OneDayScreenState extends State<OneDayScreen>
     );
   }
 
-  List<BillsListData> getMyBills(List<BillRecordModel> bills) {
+  List<BillsListData> getMyBills(List<XT> bills) {
     List<BillsListData> datas = [];
     datas.add(BillsListData(type: BillsListData.typeHeader, value: null));
     datas.add(BillsListData(type: BillsListData.typeRecord, value: null));
 
     String month;
     String day;
-    billToday.clear();
     bills.forEach((element) {
       var dateTime =
           DateTime.fromMillisecondsSinceEpoch(element.updateTimestamp);
@@ -190,81 +189,7 @@ class _OneDayScreenState extends State<OneDayScreen>
         datas.add(BillsListData(type: BillsListData.typeDay, value: element));
       }
       datas.add(BillsListData(type: BillsListData.typeItem, value: element));
-      var bilT = DateUtil.getBillToday(element);
-      if (billToday[bilT] == null) {
-        if (element.type == 1) {
-          billToday[bilT] = -element.money;
-        } else {
-          billToday[bilT] = element.money;
-        }
-      } else {
-        double newMoney = billToday[bilT];
-        if (element.type == 1) {
-          newMoney = newMoney - element.money;
-        } else {
-          newMoney = newMoney + element.money;
-        }
-        billToday[bilT] = newMoney;
-      }
     });
     return datas;
-  }
-
-  List<OnDayHabitListData> getHabits(List<Habit> habits) {
-    List<OnDayHabitListData> datas = [];
-    datas.add(
-        OnDayHabitListData(type: OnDayHabitListData.typeHeader, value: null));
-    int weekend = DateTime.now().weekday;
-    int dayPeroidHabitCount = habits
-        .where((element) =>
-            element.period == HabitPeriod.day &&
-            element.completeDays.contains(weekend))
-        .length;
-    int weekPeroidHabitCount =
-        habits.where((element) => element.period == HabitPeriod.week).length;
-    int monthPeroidHabitCount =
-        habits.where((element) => element.period == HabitPeriod.month).length;
-
-    if (dayPeroidHabitCount == 0 &&
-        weekPeroidHabitCount == 0 &&
-        monthPeroidHabitCount == 0) {
-      datas.add(
-          OnDayHabitListData(type: OnDayHabitListData.typeTip, value: null));
-    } else {
-      if (dayPeroidHabitCount > 0) {
-        datas.add(OnDayHabitListData(
-            type: OnDayHabitListData.typeRate, value: HabitPeriod.day));
-      }
-      if (weekPeroidHabitCount > 0) {
-        datas.add(OnDayHabitListData(
-            type: OnDayHabitListData.typeRate, value: HabitPeriod.week));
-      }
-      if (monthPeroidHabitCount > 0) {
-        datas.add(OnDayHabitListData(
-            type: OnDayHabitListData.typeRate, value: HabitPeriod.month));
-      }
-    }
-    datas.addAll(HabitUtil.sortByCompleteTime(habits));
-    return datas;
-  }
-
-  Widget getTitleView(String title, Animation animation,
-      AnimationController animationController) {
-    return AnimatedBuilder(
-      animation: animationController,
-      builder: (context, child) {
-        return FadeTransition(
-          opacity: animation,
-          child: Container(
-            margin: EdgeInsets.only(left: 16, top: 10),
-            child: Text(
-              title,
-              style: AppTheme.appTheme
-                  .headline2(fontWeight: FontWeight.w600, fontSize: 16),
-            ),
-          ),
-        );
-      },
-    );
   }
 }

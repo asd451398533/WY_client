@@ -5,11 +5,12 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:timefly/add_habit/edit_name.dart';
 import 'package:timefly/app_theme.dart';
-import 'package:timefly/blocs/bill/bill_bloc.dart';
-import 'package:timefly/blocs/bill/bill_event_1.dart';
+import 'package:timefly/bean/xt.dart';
 import 'package:timefly/blocs/habit/habit_bloc.dart';
 import 'package:timefly/blocs/record_bloc.dart';
-import 'package:timefly/bookkeep/bill_record_response.dart';
+import 'package:timefly/blocs/xt/bill_bloc.dart';
+import 'package:timefly/blocs/xt/bill_event_1.dart';
+import 'package:timefly/blocs/xt/xt_record_bloc.dart';
 import 'package:timefly/bookkeep/bookkeeping_page.dart';
 import 'package:timefly/commonModel/picker/loadingPicker.dart';
 import 'package:timefly/models/habit.dart';
@@ -21,21 +22,86 @@ import 'package:timefly/utils/date_util.dart';
 import 'package:timefly/utils/flash_helper.dart';
 import 'package:timefly/utils/habit_util.dart';
 import 'package:timefly/utils/pair.dart';
+import 'package:timefly/xt/xt_bookkeeping_page.dart';
+import 'package:timefly/xt/xt_normal_view.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 import 'package:time/time.dart';
 
 import '../home_screen.dart';
 
-class BillMarkView extends StatefulWidget {
-  final BillRecordModel value;
+class XTTypeSView extends StatelessWidget {
+  final AnimationController animationController;
+  final Function(String str) result;
 
-  const BillMarkView({Key key, this.value}) : super(key: key);
+  XTTypeSView(this.animationController, this.result) : super();
+  List<String> words = [
+    "空腹",
+    "早餐前",
+    "早餐后",
+    "早餐后一小时",
+    "早餐后两小时",
+    "午餐前",
+    "午餐后",
+    "午餐后一小时",
+    "午餐后两小时",
+    "晚餐前",
+    "晚餐后",
+    "晚餐后一小时",
+    "晚餐后两小时",
+    "睡前",
+  ];
 
   @override
-  _BillMarkViewState createState() => _BillMarkViewState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppTheme.appTheme.containerBackgroundColor(),
+      body: Column(
+        children: [
+          Container(
+            alignment: Alignment.center,
+            height: 50,
+            child: Text(
+              '请选类型',
+              style: AppTheme.appTheme.headline1(fontSize: 16),
+            ),
+          ),
+          Expanded(
+              child: ListView.builder(
+                  physics: ClampingScrollPhysics(),
+                  itemCount: words.length,
+                  itemBuilder: (c, index) {
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                        result(words[index]);
+                      },
+                      child: XTTypeOneView(
+                          item: words[index],
+                          animation: Tween<Offset>(
+                                  begin: Offset(0, 0.5), end: Offset.zero)
+                              .animate(CurvedAnimation(
+                                  parent: animationController,
+                                  curve: Interval((1 / words.length) * index, 1,
+                                      curve: Curves.fastOutSlowIn))),
+                          animationController: animationController),
+                    );
+                  }))
+        ],
+      ),
+    );
+  }
 }
 
-class _BillMarkViewState extends State<BillMarkView> {
+class XTMarkView extends StatefulWidget {
+  final XT value;
+
+  const XTMarkView({Key key, this.value}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => _XTMarkViewState();
+}
+
+class _XTMarkViewState extends State<XTMarkView> {
   final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
   final SlidableController slidableController = SlidableController();
   final ScrollController scrollController = ScrollController();
@@ -48,10 +114,10 @@ class _BillMarkViewState extends State<BillMarkView> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => RecordBloc()..add(RecordLoad(widget.value)),
-      child: BlocBuilder<RecordBloc, RecordState>(
+      create: (context) => XTRecordBloc()..add(XTRecordLoad(widget.value)),
+      child: BlocBuilder<XTRecordBloc, XTRecordState>(
         builder: (context, state) {
-          if (state is RecordLoadSuccess) {
+          if (state is XTRecordLoadSuccess) {
             return Scaffold(
               backgroundColor: AppTheme.appTheme.containerBackgroundColor(),
               body: Column(
@@ -64,39 +130,39 @@ class _BillMarkViewState extends State<BillMarkView> {
                     height: 100,
                     child: Row(
                       children: [
+                        // Padding(
+                        //   padding: EdgeInsets.only(left: 16),
+                        //   child: Image.asset(
+                        //     Utils.getImagePath(
+                        //         'category/${getCategoryItem().image}'),
+                        //     height: 20,
+                        //     width: 20,
+                        //     color: Colors.black,
+                        //   ),
+                        // ),
                         Padding(
                           padding: EdgeInsets.only(left: 16),
-                          child: Image.asset(
-                            Utils.getImagePath(
-                                'category/${getCategoryItem().image}'),
-                            height: 20,
-                            width: 20,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 10),
                           child: Text(
-                            getCategoryItem().name,
+                            "${widget.value.type}:${widget.value.number}",
                             style: AppTheme.appTheme.headline1(
-                                fontWeight: FontWeight.normal, fontSize: 22),
+                                fontWeight: FontWeight.normal, fontSize: 18),
                           ),
                         ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 5),
-                          child: Text(
-                            "${widget.value.type == 1 ? "-" : "+"}${widget.value.money}",
-                            style: AppTheme.appTheme.headline1(
-                                fontWeight: FontWeight.normal, fontSize: 22),
-                          ),
-                        ),
+                        // Padding(
+                        //   padding: EdgeInsets.only(left: 5),
+                        //   child: Text(
+                        //     "${widget.value.type == 1 ? "-" : "+"}${widget.value.money}",
+                        //     style: AppTheme.appTheme.headline1(
+                        //         fontWeight: FontWeight.normal, fontSize: 22),
+                        //   ),
+                        // ),
                         Expanded(child: Container()),
                         GestureDetector(
                           onTap: () async {
                             Navigator.pop(context);
                             Navigator.of(context)
                                 .push(CupertinoPageRoute(builder: (context) {
-                              return Bookkeepping(
+                              return XTkeepping(
                                 recordModel: widget.value,
                               );
                             }));
@@ -126,10 +192,9 @@ class _BillMarkViewState extends State<BillMarkView> {
                             popLoadingDialog(context, false, "删除中");
                             ApiDio()
                                 .apiService
-                                .addBill(widget.value)
+                                .addXT(widget.value)
                                 .listen((event) {
-                              BlocProvider.of<BillBloc>(appContext)
-                                  .add(BillLoad());
+                              BlocProvider.of<XTBloc>(appContext).add(XTLoad());
                               Navigator.pop(context);
                               Navigator.pop(context);
                             }).onError((e) {
@@ -191,12 +256,12 @@ class _BillMarkViewState extends State<BillMarkView> {
               floatingActionButton: FloatingActionButton(
                 onPressed: () async {
                   int checkTime = DateTime.now().millisecondsSinceEpoch;
-                  var remarkBean = RemarkBean()
+                  var remarkBean = XTRemark()
                     ..isDelete = 0
                     ..userKey = SessionUtils().currentUser.key
                     ..remarkId = widget.value.remarkId
                     ..remark = ""
-                    ..billId = widget.value.id
+                    ..xtId = widget.value.id
                     ..createTimestamp = checkTime
                     ..updateTimestamp = checkTime
                     ..updateTime =
@@ -209,8 +274,8 @@ class _BillMarkViewState extends State<BillMarkView> {
                         DateTime.fromMillisecondsSinceEpoch(checkTime)
                             .toString();
 
-                  BlocProvider.of<RecordBloc>(context)
-                      .add(RecordAdd(remarkBean, listKey, scrollController));
+                  BlocProvider.of<XTRecordBloc>(context)
+                      .add(XTRecordAdd(remarkBean, listKey, scrollController));
                 },
                 backgroundColor: AppTheme.appTheme.grandientColorEnd(),
                 child: SvgPicture.asset(
@@ -228,30 +293,8 @@ class _BillMarkViewState extends State<BillMarkView> {
     );
   }
 
-  CategoryItem getCategoryItem() {
-    var result = CategoryItem("", "", 0);
-    if (widget.value.type == 1) {
-      var indexWhere = ApiDio()
-          .apiService
-          .expenList
-          .indexWhere((item) => item.name == widget.value.categoryImage);
-      if (indexWhere >= 0) {
-        result = ApiDio().apiService.expenList[indexWhere];
-      }
-    } else {
-      var indexWhere = ApiDio()
-          .apiService
-          .incomeList
-          .indexWhere((item) => item.name == widget.value.categoryImage);
-      if (indexWhere >= 0) {
-        result = ApiDio().apiService.incomeList[indexWhere];
-      }
-    }
-    return result;
-  }
-
-  Widget getCheckItemView(BuildContext context, List<RemarkBean> remarks,
-      RemarkBean record, Animation<dynamic> animation) {
+  Widget getCheckItemView(BuildContext context, List<XTRemark> remarks,
+      XTRemark record, Animation<dynamic> animation) {
     return SizeTransition(
       sizeFactor:
           CurvedAnimation(parent: animation, curve: Curves.fastOutSlowIn),
@@ -379,10 +422,10 @@ class _BillMarkViewState extends State<BillMarkView> {
     );
   }
 
-  void removeItem(BuildContext context, List<RemarkBean> remarks,
-      RemarkBean remarkBean) async {
+  void removeItem(
+      BuildContext context, List<XTRemark> remarks, XTRemark remarkBean) async {
     remarkBean.isDelete = 1;
-    BlocProvider.of<RecordBloc>(context).add(RecordDelete(remarkBean));
+    BlocProvider.of<XTRecordBloc>(context).add(XTRecordDelete(remarkBean));
 
     int index = remarks.indexOf(remarkBean);
     listKey.currentState.removeItem(index,
@@ -390,7 +433,7 @@ class _BillMarkViewState extends State<BillMarkView> {
         duration: const Duration(milliseconds: 500));
   }
 
-  void editNote(BuildContext context, RemarkBean remarkBean) async {
+  void editNote(BuildContext context, XTRemark remarkBean) async {
     Mutable<String> content = Mutable(remarkBean.remark);
     await Navigator.of(context).push(PageRouteBuilder(
         opaque: false,
@@ -415,6 +458,6 @@ class _BillMarkViewState extends State<BillMarkView> {
           );
         }));
     remarkBean.remark = content.value;
-    BlocProvider.of<RecordBloc>(context).add(RecordUpdate(remarkBean));
+    BlocProvider.of<XTRecordBloc>(context).add(XTRecordUpdate(remarkBean));
   }
 }
