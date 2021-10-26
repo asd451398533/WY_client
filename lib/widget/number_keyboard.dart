@@ -183,7 +183,7 @@ class _MyKeyBoardState extends State<MyKeyBoard> {
       case 13:
         return Text(
           '0',
-          style: AppTheme.appTheme.headline1(
+          style: AppTheme.appTheme.numHeadline1(
               fontWeight: FontWeight.normal,
               fontSize: ScreenUtil.getInstance().setSp(40)),
         );
@@ -208,7 +208,7 @@ class _MyKeyBoardState extends State<MyKeyBoard> {
       default:
         return Text(
           '${index < 3 ? index + 1 : index > 3 && index < 7 ? index : index > 7 ? index - 1 : 0}',
-          style: AppTheme.appTheme.headline1(
+          style: AppTheme.appTheme.numHeadline1(
               fontWeight: FontWeight.normal,
               fontSize: ScreenUtil.getInstance().setSp(40)),
         );
