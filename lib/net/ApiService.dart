@@ -15,10 +15,27 @@ class ApiService {
 
   final Dio dio;
 
-  Observable<SimpleResponce> uploadImage(FormData formData) {
+  // Observable<SimpleResponce> uploadImage(FormData formData) {
+  //   return Observable.fromFuture(dio.post(
+  //     'app/upload',
+  //     data: formData,
+  //     options: Options(
+  //       contentType: Headers.jsonContentType,
+  //     ),
+  //   )).flatMap((value) {
+  //     if (value != null &&
+  //         (value.statusCode >= 200 && value.statusCode < 300)) {
+  //       return Observable.fromFuture(compute(parseUserBean, value.toString()));
+  //     } else {
+  //       return Observable.fromFuture(null);
+  //     }
+  //   });
+  // }
+
+  Observable<User> getUser(String name) {
     return Observable.fromFuture(dio.post(
-      'app/upload',
-      data: formData,
+      'app/findUserByName',
+      data: <String, dynamic>{"name": name},
       options: Options(
         contentType: Headers.jsonContentType,
       ),
@@ -32,17 +49,20 @@ class ApiService {
     });
   }
 
-  Observable<User> getUser(String name) {
+  Observable<SimpleResponce> addFK(String word) {
     return Observable.fromFuture(dio.post(
-      'app/findUserByName',
-      data: <String, dynamic>{"name": name},
+      'app/addFK',
+      data: FK()
+        ..word = word
+        ..toJson(),
       options: Options(
         contentType: Headers.jsonContentType,
       ),
     )).flatMap((value) {
       if (value != null &&
           (value.statusCode >= 200 && value.statusCode < 300)) {
-        return Observable.fromFuture(compute(parseUserBean, value.toString()));
+        return Observable.fromFuture(
+            compute(paresSimpleResponce, value.toString()));
       } else {
         return Observable.fromFuture(null);
       }
@@ -84,6 +104,31 @@ class ApiService {
       if (value != null &&
           (value.statusCode >= 200 && value.statusCode < 300)) {
         return Observable.fromFuture(compute(getBills, value.toString()));
+      } else {
+        return Observable.fromFuture(null);
+      }
+    });
+  }
+
+  List<Food> foods = [];
+
+  Observable<List<Food>> getFoods() {
+    if (foods.isNotEmpty) {
+      return Observable.just(foods);
+    }
+    return Observable.fromFuture(dio.get(
+      'app/getFoods',
+      options: Options(
+        responseType: ResponseType.plain,
+      ),
+    )).flatMap((value) {
+      if (value != null &&
+          (value.statusCode >= 200 && value.statusCode < 300)) {
+        return Observable.fromFuture(compute(getFoodsBean, value.toString()))
+            .doOnData((event) {
+          foods.clear();
+          foods.addAll(event);
+        });
       } else {
         return Observable.fromFuture(null);
       }
@@ -151,6 +196,13 @@ List<BillRecordModel> getBills(String value) {
   return cardbeanList;
 }
 
+List<Food> getFoodsBean(String value) {
+  List responseJson = json.decode(value);
+  List<Food> cardbeanList =
+      responseJson.map((m) => new Food.fromJson(m)).toList();
+  return cardbeanList;
+}
+
 List<XT> getXTs(String value) {
   List responseJson = json.decode(value);
   List<XT> cardbeanList = responseJson.map((m) => new XT.fromJson(m)).toList();
@@ -169,4 +221,8 @@ List<XTRemark> getXTRemarks(String value) {
   List<XTRemark> cardbeanList =
       responseJson.map((m) => new XTRemark.fromJson(m)).toList();
   return cardbeanList;
+}
+
+FK parseFK(String value) {
+  return FK.fromJson(json.decode(value));
 }

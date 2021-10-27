@@ -6,6 +6,7 @@ import 'package:timefly/bean/xt.dart';
 import 'package:timefly/biao/MapView.dart';
 import 'package:timefly/bookkeep/bill_record_response.dart';
 import 'package:timefly/bookkeep/bookkeeping_page.dart';
+import 'package:timefly/food/foods_item.dart';
 import 'package:timefly/login/login_page.dart';
 import 'package:timefly/models/habit_list_model.dart';
 import 'package:timefly/models/user.dart';
@@ -61,6 +62,29 @@ class XTTimeAndWordView extends StatelessWidget {
                   style: AppTheme.appTheme
                       .headline1(fontSize: 16, fontWeight: FontWeight.normal),
                 ),
+                GestureDetector(
+                  onTap: () {
+                    JumpUtil.jumpTo(context, FoodsScreen());
+                  },
+                  child: Container(
+                    width: 70,
+                    margin: EdgeInsets.only(top: 5),
+                    alignment: Alignment.center,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      boxShadow: AppTheme.appTheme.coloredBoxShadow(),
+                      gradient: AppTheme.appTheme.containerGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                    ),
+                    child: Text(
+                      "吃什么？",
+                      style: AppTheme.appTheme.headline1(fontSize: 13),
+                    ),
+                  ),
+                )
               ],
             ),
           ),

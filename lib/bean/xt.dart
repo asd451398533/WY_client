@@ -56,6 +56,48 @@ class XT {
       };
 }
 
+class FK {
+  int id;
+  String word;
+
+  FK();
+
+  factory FK.fromJson(Map<String, dynamic> json) {
+    return FK()
+      ..id = json['id'] as int
+      ..word = json['word'] as String;
+  }
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'id': id,
+        'word': word,
+      };
+}
+
+class Food {
+  int id;
+  String name;
+  double gi;
+  String other;
+
+  Food();
+
+  factory Food.fromJson(Map<String, dynamic> json) {
+    return Food()
+      ..id = json['id'] as int
+      ..name = json['name'] as String
+      ..gi = json['gi'] as double
+      ..other = json['other'] == null ? "" : json['other'] as String;
+  }
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'id': id,
+        'name': name,
+        'gi': gi,
+        'other': other,
+      };
+}
+
 class XTRemark {
   int id;
 

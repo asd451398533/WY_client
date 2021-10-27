@@ -13,8 +13,7 @@ showPicker(BuildContext context) {
   //底部弹出
   showModalBottomSheet(
       context: context,
-      builder: (BuildContext con) =>
-          Container(
+      builder: (BuildContext con) => Container(
             height: 160,
             padding: EdgeInsets.all(20),
             color: Colors.white,
@@ -42,18 +41,15 @@ openPicker(BuildContext context, bool state) async {
       source: state ? ImageSource.camera : ImageSource.gallery);
   if (photo != null) {
     var imageCompressAndGetFile =
-    await ImageCompressUtil.imageCompressAndGetFile(File(photo.path));
+        await ImageCompressUtil.imageCompressAndGetFile(File(photo.path));
 
-    var formData = FormData.fromMap({
-      'file': await MultipartFile.fromFile(imageCompressAndGetFile.path)
-    });
+    var formData = FormData.fromMap(
+        {'file': await MultipartFile.fromFile(imageCompressAndGetFile.path)});
     uploadFile(formData);
   }
 }
 
 uploadFile(formData) {
-  ApiDio().apiService
-
   HttpManager.getInstance().uploadImage(formData, (Map<String, dynamic> data) {
     if (data["code"] == 0) {
       String url = data["data"];
@@ -85,10 +81,7 @@ class ImageCompressUtil {
     var dir = await getTemporaryDirectory();
     var targetPath = dir.absolute.path +
         "/" +
-        DateTime
-            .now()
-            .millisecondsSinceEpoch
-            .toString() +
+        DateTime.now().millisecondsSinceEpoch.toString() +
         ".jpg";
 
     var result = await FlutterImageCompress.compressAndGetFile(

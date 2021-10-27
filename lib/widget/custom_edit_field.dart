@@ -20,6 +20,7 @@ class CustomEditField extends StatefulWidget {
   final String initValue;
   final ValueChanged<String> onValueChanged;
   final VoidCallback onCompleted;
+  final EdgeInsetsGeometry innerMargin;
 
   const CustomEditField(
       {Key key,
@@ -36,7 +37,8 @@ class CustomEditField extends StatefulWidget {
       this.minHeight,
       this.autoFucus,
       this.inputType,
-      this.onCompleted})
+      this.onCompleted,
+      this.innerMargin})
       : super(key: key);
 
   @override
@@ -75,7 +77,9 @@ class _CustomEditFieldState extends State<CustomEditField>
           Container(
             constraints: BoxConstraints(
                 minHeight: widget.minHeight == null ? 0 : widget.minHeight),
-            margin: EdgeInsets.only(top: 10, left: 32, right: 32),
+            margin: widget.innerMargin == null
+                ? EdgeInsets.only(top: 10, left: 32, right: 32)
+                : widget.innerMargin,
             decoration: widget.containerDecoration,
             child: TextField(
               strutStyle: StrutStyle(height: 1.5),
@@ -120,9 +124,10 @@ class _CustomEditFieldState extends State<CustomEditField>
                   numAnimationController.reverse(from: 0.3);
                 }
               },
-              onEditingComplete: widget.onCompleted ?? () {
-                FocusScope.of(context).requestFocus(FocusNode());
-              },
+              onEditingComplete: widget.onCompleted ??
+                  () {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                  },
             ),
           ),
           ScaleTransition(
