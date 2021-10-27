@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timefly/app_theme.dart';
 import 'package:timefly/blocs/bill/bill_event_1.dart';
 import 'package:timefly/blocs/habit/habit_bloc.dart';
@@ -14,17 +15,17 @@ import 'package:timefly/blocs/xt/bill_bloc.dart';
 import 'package:timefly/blocs/xt/bill_event_1.dart';
 import 'package:timefly/home_screen.dart';
 import 'package:timefly/login/login_page.dart';
-import 'package:timefly/notification/notification_plugin.dart';
-import 'package:timefly/utils/date_util.dart';
 
 import 'blocs/bill/bill_bloc.dart';
 import 'blocs/bloc_observer.dart';
 import 'models/user.dart';
 
+const bool IS_WEB = true;
+
 void main() async {
+  SharedPreferences.setMockInitialValues({});
   Bloc.observer = SimpleBlocObserver();
   WidgetsFlutterBinding.ensureInitialized();
-  NotificationPlugin.ensureInitialized();
   await SessionUtils.sharedInstance().init();
   await SystemChrome.setPreferredOrientations(<DeviceOrientation>[
     DeviceOrientation.portraitUp,

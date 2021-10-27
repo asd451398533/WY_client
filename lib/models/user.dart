@@ -77,10 +77,8 @@ class SessionUtils {
   User currentUser;
   BillBloc billBloc;
   XTBloc xtBloc;
-  SharedPreferences prefs;
 
   init() async {
-    prefs = await SharedPreferences.getInstance();
     currentUser = await DatabaseProvider.db.getCurrentUser();
     print('init user -- ${currentUser?.toJson()}');
   }

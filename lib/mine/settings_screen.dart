@@ -7,6 +7,7 @@ import 'package:timefly/blocs/theme/theme_bloc.dart';
 import 'package:timefly/blocs/theme/theme_event.dart';
 import 'package:timefly/blocs/theme/theme_state.dart';
 import 'package:timefly/login/login_page.dart';
+import 'package:timefly/main.dart';
 import 'package:timefly/models/user.dart';
 import 'package:timefly/utils/flash_helper.dart';
 import 'package:timefly/utils/system_util.dart';
@@ -25,8 +26,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<ThemeBloc, ThemeState>(
       builder: (context, state) {
-        SystemUtil.changeStateBarMode(
-            AppTheme.appTheme.isDark() ? Brightness.light : Brightness.dark);
+        if (!IS_WEB) {
+          SystemUtil.changeStateBarMode(
+              AppTheme.appTheme.isDark() ? Brightness.light : Brightness.dark);
+        }
 
         AppThemeMode appThemeMode = state.themeMode;
         AppThemeColorMode appThemeColorMode = state.themeColorMode;
@@ -64,10 +67,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ThemeColorView(
                     currentColorMode: appThemeColorMode,
                     onTap: (colorMode) async {
-                      BlocProvider.of<ThemeBloc>(context).add(
-                          ThemeChangeEvent(appThemeMode, colorMode, appFontMode));
+                      BlocProvider.of<ThemeBloc>(context).add(ThemeChangeEvent(
+                          appThemeMode, colorMode, appFontMode));
                       SharedPreferences shared =
-                      await SharedPreferences.getInstance();
+                          await SharedPreferences.getInstance();
                       shared.setString(COLOR_MODE, colorMode.toString());
                     },
                   ),
@@ -76,8 +79,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       SessionUtils.sharedInstance().logout();
                       Navigator.pushAndRemoveUntil(
                         context,
-                        new MaterialPageRoute(builder: (context) => new LoginPage()),
-                            (Route<dynamic> route) => false,
+                        new MaterialPageRoute(
+                            builder: (context) => new LoginPage()),
+                        (Route<dynamic> route) => false,
                       );
                     },
                     child: Container(

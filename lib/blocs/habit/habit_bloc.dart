@@ -27,9 +27,6 @@ class HabitsBloc extends Bloc<HabitsEvent, HabitsState> {
         yield HabitLoadSuccess([]);
         return;
       }
-      List<Habit> habits = await DatabaseProvider.db.getAllHabits();
-      print(habits);
-      yield HabitLoadSuccess(habits);
     } catch (e) {
       print(e);
       yield HabitsLodeFailure();
@@ -53,7 +50,6 @@ class HabitsBloc extends Bloc<HabitsEvent, HabitsState> {
               habit.id == habitUpdate.habit.id ? habitUpdate.habit : habit)
           .toList();
       yield HabitLoadSuccess(habits);
-      DatabaseProvider.db.update(habitUpdate.habit);
     }
   }
 }

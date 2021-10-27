@@ -5,20 +5,15 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:timefly/app_theme.dart';
 import 'package:timefly/blocs/bill/bill_bloc.dart';
 import 'package:timefly/blocs/bill/bill_event.dart';
-import 'package:timefly/blocs/habit/habit_bloc.dart';
-import 'package:timefly/blocs/habit/habit_state.dart';
-import 'package:timefly/blocs/user_bloc.dart';
 import 'package:timefly/bookkeep/bill_record_response.dart';
+import 'package:timefly/main.dart';
 import 'package:timefly/models/habit.dart';
 import 'package:timefly/models/habit_list_model.dart';
 import 'package:timefly/models/habit_peroid.dart';
-import 'package:timefly/net/ApiService.dart';
-import 'package:timefly/one_day/habit_list_view.dart';
 import 'package:timefly/one_day/one_day_normal_view.dart';
 import 'package:timefly/utils/date_util.dart';
 import 'package:timefly/utils/habit_util.dart';
 import 'package:timefly/utils/system_util.dart';
-import 'package:timefly/widget/clip/bottom_cliper.dart';
 
 import 'one_day_rate_view.dart';
 
@@ -52,8 +47,10 @@ class _OneDayScreenState extends State<OneDayScreen>
 
   @override
   Widget build(BuildContext context) {
-    SystemUtil.changeStateBarMode(
-        AppTheme.appTheme.isDark() ? Brightness.light : Brightness.dark);
+    if(!IS_WEB) {
+      SystemUtil.changeStateBarMode(
+          AppTheme.appTheme.isDark() ? Brightness.light : Brightness.dark);
+    }
     return Container(
       child: BlocBuilder<BillBloc, BillState>(
         builder: (context, state) {

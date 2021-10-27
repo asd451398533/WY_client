@@ -6,6 +6,7 @@ import 'package:timefly/blocs/habit/habit_bloc.dart';
 import 'package:timefly/blocs/habit/habit_state.dart';
 import 'package:timefly/habit_progress/progress_rate_views.dart';
 import 'package:timefly/habit_progress/week_month_chart.dart';
+import 'package:timefly/main.dart';
 import 'package:timefly/models/habit.dart';
 import 'package:timefly/models/habit_peroid.dart';
 import 'package:timefly/utils/habit_util.dart';
@@ -34,8 +35,10 @@ class _HabitProgressScreenState extends State<HabitProgressScreen>
 
   @override
   Widget build(BuildContext context) {
-    SystemUtil.changeStateBarMode(
-        AppTheme.appTheme.isDark() ? Brightness.light : Brightness.dark);
+    if (!IS_WEB) {
+      SystemUtil.changeStateBarMode(
+          AppTheme.appTheme.isDark() ? Brightness.light : Brightness.dark);
+    }
     return Container(
       alignment: Alignment.center,
       child: Text(

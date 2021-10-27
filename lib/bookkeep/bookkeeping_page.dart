@@ -51,31 +51,23 @@ class _BookkeeppingState extends State<Bookkeepping>
 
   /// 获取支出类别数据
   void _loadExpenDatas() {
-    ApiDio().apiService.loadExpenDatas().listen((event) {
-      _expenObjects.clear();
-      _expenObjects.addAll(event);
-      if (widget.recordModel != null && widget.recordModel.type == 1) {
-        _selectedIndexLeft = _expenObjects.indexWhere(
-            (item) => item.name == widget.recordModel.categoryImage);
-      }
-      setState(() {});
-    }).onError((e) {
-      FlashHelper.toast(context, '读取数据库出错');
-    });
+    _expenObjects.clear();
+    _expenObjects.addAll(ApiDio().apiService.expenList);
+    if (widget.recordModel != null && widget.recordModel.type == 1) {
+      _selectedIndexLeft = _expenObjects.indexWhere(
+              (item) => item.name == widget.recordModel.categoryImage);
+    }
+    setState(() {});
   }
 
   void _loadIncomeDatas() {
-    ApiDio().apiService.loadIncomeDatas().listen((event) {
-      _inComeObjects.clear();
-      _inComeObjects.addAll(event);
-      if (widget.recordModel != null && widget.recordModel.type == 2) {
-        _selectedIndexRight = _inComeObjects.indexWhere(
-            (item) => item.name == widget.recordModel.categoryImage);
-      }
-      setState(() {});
-    }).onError((e) {
-      FlashHelper.toast(context, '读取数据库出错');
-    });
+    _inComeObjects.clear();
+    _inComeObjects.addAll(ApiDio().apiService.incomeList);
+    if (widget.recordModel != null && widget.recordModel.type == 2) {
+      _selectedIndexRight = _inComeObjects.indexWhere(
+              (item) => item.name == widget.recordModel.categoryImage);
+    }
+    setState(() {});
   }
 
   void _updateInitData() {

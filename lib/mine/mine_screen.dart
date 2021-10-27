@@ -8,6 +8,7 @@ import 'package:timefly/blocs/theme/theme_bloc.dart';
 import 'package:timefly/blocs/theme/theme_event.dart';
 import 'package:timefly/blocs/theme/theme_state.dart';
 import 'package:timefly/login/login_page.dart';
+import 'package:timefly/main.dart';
 import 'package:timefly/mine/mine_screen_views.dart';
 import 'package:timefly/mine/settings_screen.dart';
 import 'package:timefly/models/user.dart';
@@ -25,11 +26,10 @@ class _MineScreenState extends State<MineScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<ThemeBloc, ThemeState>(
       builder: (context, state) {
-        SystemUtil.changeStateBarMode(
-            AppTheme.appTheme.isDark() ? Brightness.light : Brightness.dark);
-        AppThemeMode appThemeMode = state.themeMode;
-        AppThemeColorMode appThemeColorMode = state.themeColorMode;
-        AppFontMode appFontMode = state.fontMode;
+        if (!IS_WEB) {
+          SystemUtil.changeStateBarMode(
+              AppTheme.appTheme.isDark() ? Brightness.light : Brightness.dark);
+        }
         return Stack(
           children: [
             ListView(physics: ClampingScrollPhysics(), children: [
@@ -44,7 +44,6 @@ class _MineScreenState extends State<MineScreen> {
               // SizedBox(
               //   height: 100,
               // ),
-
             ]),
             GestureDetector(
               onTap: () async {

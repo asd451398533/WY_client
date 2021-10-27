@@ -31,7 +31,41 @@ class ApiService {
   //     }
   //   });
   // }
-
+  List<CategoryItem> incomeList = [
+    CategoryItem("工资", "income/工资_icon", 0),
+    CategoryItem("奖金", "income/奖金_icon", 1),
+    CategoryItem("补贴", "income/补贴_icon", 2),
+    CategoryItem("兼职", "income/兼职_icon", 3),
+    CategoryItem("租金", "income/租金_icon", 4),
+    CategoryItem("房子", "income/房子_icon", 5),
+    CategoryItem("理财", "income/理财_icon", 6),
+    CategoryItem("股票", "income/股票_icon", 7),
+    CategoryItem("其他", "other/其他_icon", 8),
+  ];
+  List<CategoryItem> expenList = [
+    CategoryItem("吃喝", "catering/吃喝_icon", 0),
+    CategoryItem("饮料", "catering/饮料_icon", 1),
+    CategoryItem("零食", "catering/零食_icon", 2),
+    CategoryItem("水果", "catering/水果_icon", 3),
+    CategoryItem("买菜", "catering/买菜_icon", 4),
+    CategoryItem("交通", "traffic/交通_icon", 5),
+    CategoryItem("娱乐", "recreation/娱乐_icon", 6),
+    CategoryItem("聚会", "recreation/聚会_icon", 7),
+    CategoryItem("日用品", "shopping/日用品_icon", 8),
+    CategoryItem("话费网费", "daily/话费网费_icon", 9),
+    CategoryItem("衣服", "shopping/衣服_icon", 10),
+    CategoryItem("护肤美妆", "shopping/护肤美妆_icon", 11),
+    CategoryItem("水电煤", "daily/水电煤_icon", 12),
+    CategoryItem("房租", "housing/房租_icon", 13),
+    CategoryItem("房贷", "housing/房贷_icon", 14),
+    CategoryItem("加油", "car/加油_icon", 15),
+    CategoryItem("汽车维修", "car/汽车维修_icon", 16),
+    CategoryItem("红包", "humanfeelings/红包_icon", 17),
+    CategoryItem("物流", "other/物流_icon", 18),
+    CategoryItem("医疗", "other/医疗_icon", 19),
+    CategoryItem("宠物", "other/宠物_icon", 20),
+    CategoryItem("其他", "other/其他_icon", 21),
+  ];
   Observable<User> getUser(String name) {
     return Observable.fromFuture(dio.post(
       'app/findUserByName',
@@ -134,51 +168,6 @@ class ApiService {
       }
     });
   }
-
-  List<CategoryItem> incomeList = [];
-
-  Observable<List<CategoryItem>> loadIncomeDatas() {
-    if (incomeList.isEmpty) {
-      return Observable.fromFuture(
-              DatabaseProvider.db.getInitialIncomeCategory())
-          .map((event) {
-        var list = event.map((i) => CategoryItem.fromJson(i)).toList();
-        incomeList.clear();
-        incomeList.addAll(list);
-        return list;
-      });
-    }
-    return Observable.just(incomeList);
-  }
-
-  List<CategoryItem> expenList = [];
-
-  Observable<List<CategoryItem>> loadExpenDatas() {
-    if (expenList.isEmpty) {
-      return Observable.fromFuture(
-              DatabaseProvider.db.getInitialExpenCategory())
-          .map((event) {
-        var list = event.map((i) => CategoryItem.fromJson(i)).toList();
-        expenList.clear();
-        expenList.addAll(list);
-        return list;
-      });
-    }
-    return Observable.just(expenList);
-  }
-
-// Observable<AIBean> getImageAi(String url) {
-//   return Observable.fromFuture(_myDio.post('v2/api/infer/face', data: """
-//           {"url": "${url}"}
-//       """)).flatMap((value) {
-//     if (value != null &&
-//         (value.statusCode >= 200 && value.statusCode < 300)) {
-//       return Observable.fromFuture(compute(parseAiBean, value.toString()));
-//     } else {
-//       return Observable.fromFuture(null);
-//     }
-//   });
-// }
 }
 
 SimpleResponce paresSimpleResponce(String value) {

@@ -525,11 +525,12 @@ class _XTkeeppingState extends State<XTkeepping> with TickerProviderStateMixin {
 
   /// 记账保存
   void _record({bool isGoOn = false}) {
-    if (_numberString.isEmpty || _numberString == '0.') {
-      return;
-    }
     if (itemType.isEmpty) {
       FlashHelper.toast(context, '请选择类型');
+      return;
+    }
+    if (_numberString.isEmpty || _numberString == '0.') {
+      FlashHelper.toast(context, '请选择数值');
       return;
     }
     _isAdd = false;

@@ -40,23 +40,6 @@ class BillBloc extends Bloc<BillEvent, BillState> {
             "userKey": SessionUtils().currentUser.key
           },
           options: Options(responseType: ResponseType.plain));
-      if (ApiDio().apiService.expenList.isEmpty) {
-        var list = await DatabaseProvider.db.getInitialExpenCategory();
-        ApiDio().apiService.expenList.clear();
-        ApiDio()
-            .apiService
-            .expenList
-            .addAll(list.map((i) => CategoryItem.fromJson(i)).toList());
-      }
-
-      if (ApiDio().apiService.incomeList.isEmpty) {
-        var list2 = await DatabaseProvider.db.getInitialIncomeCategory();
-        ApiDio().apiService.incomeList.clear();
-        ApiDio()
-            .apiService
-            .incomeList
-            .addAll(list2.map((i) => CategoryItem.fromJson(i)).toList());
-      }
 
       if (response != null &&
           (response.statusCode >= 200 && response.statusCode < 300)) {
@@ -90,7 +73,6 @@ class BillBloc extends Bloc<BillEvent, BillState> {
               habit.id == habitUpdate.habit.id ? habitUpdate.habit : habit)
           .toList();
       yield HabitLoadSuccess(habits);
-      DatabaseProvider.db.update(habitUpdate.habit);
     }
   }
 }

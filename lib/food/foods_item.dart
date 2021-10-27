@@ -5,6 +5,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:timefly/add_habit/edit_name.dart';
 import 'package:timefly/app_theme.dart';
 import 'package:timefly/bean/xt.dart';
+import 'package:timefly/main.dart';
 import 'package:timefly/models/user.dart';
 import 'package:timefly/net/DioInstance.dart';
 import 'package:timefly/res/styles.dart';
@@ -60,9 +61,10 @@ class _FoodsScreenState extends State<FoodsScreen>
 
   @override
   Widget build(BuildContext context) {
-    //TODO
-    SystemUtil.changeStateBarMode(
-        AppTheme.appTheme.isDark() ? Brightness.light : Brightness.dark);
+    if (!IS_WEB) {
+      SystemUtil.changeStateBarMode(
+          AppTheme.appTheme.isDark() ? Brightness.light : Brightness.dark);
+    }
     return Scaffold(
       backgroundColor: AppTheme.appTheme.containerBackgroundColor(),
       appBar: MyAppBar(
