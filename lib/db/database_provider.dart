@@ -19,6 +19,7 @@ class DatabaseProvider {
       return _sharedPreferences;
     }
     _sharedPreferences = await SharedPreferences.getInstance();
+    await _sharedPreferences.reload();
     return _sharedPreferences;
   }
 

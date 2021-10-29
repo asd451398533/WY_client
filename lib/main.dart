@@ -23,7 +23,6 @@ import 'models/user.dart';
 const bool IS_WEB = true;
 
 void main() async {
-  SharedPreferences.setMockInitialValues({});
   Bloc.observer = SimpleBlocObserver();
   WidgetsFlutterBinding.ensureInitialized();
   await SessionUtils.sharedInstance().init();
